@@ -22,7 +22,7 @@
                 <div class="message bot-message mb-3">
                     <div class="d-flex flex-column align-items-start">
                         <div class="p-2 rounded bg-white shadow-sm" style="max-width: 85%; font-size: 0.9rem;">
-                            Hello! 👋 I'm your Bright Future Hub Guide. I can help you find opportunities and navigate the portal. Try clicking a suggestion below!
+                            Hi there! 👋 I'm your Hub Guide AI. I'm here to help you navigate the portal and find the best internships, scholarships, and job opportunities. How can I help you today?
                         </div>
                         <small class="text-muted mt-1" style="font-size: 0.7rem;">Now</small>
                     </div>

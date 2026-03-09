@@ -30,9 +30,9 @@ class ChatController extends Controller
             }
         }
 
-        // 2. Basic Greetings (Refined)
-        if (Str::contains($message, ['hello', 'hi', 'hey', 'aoa', 'assalam', 'dear'])) {
-            $reply = "Hello! 👋 I'm your Bright Future Hub assistant. How can I help you today?<br><br>You can ask me things like:<br>• 'Find me an internship'<br>• 'How to apply?'<br>• 'About this portal'";
+        // 2. Refined Greetings (English Only)
+        if (Str::contains($message, ['hello', 'hi', 'hey', 'greetings', 'morning', 'evening', 'afternoon'])) {
+            $reply = "Hello there! 👋 I'm your Bright Future Hub assistant. I'd be happy to help you find your next big opportunity.<br><br>How can I assist you today? You can try asking things like:<br>• 'Find me an internship'<br>• 'How do I apply for opportunities?'<br>• 'Tell me more about this portal'";
             return response()->json(['reply' => $reply]);
         }
 
@@ -76,7 +76,7 @@ class ChatController extends Controller
             }
             $reply .= "</ul>";
         } else {
-            $reply = "I'm not exactly sure about that, but I can find jobs and scholarships for you! Try asking 'Find me a software internship' or 'How to apply?'.";
+            $reply = "I'm sorry, I couldn't find exactly what you're looking for right now. However, I can help you search for specific roles or guide you through the portal features! 🚀<br><br>Try asking something like 'Find me a software internship' or 'How do I edit my profile?'.";
         }
 
         return response()->json(['reply' => $reply]);
