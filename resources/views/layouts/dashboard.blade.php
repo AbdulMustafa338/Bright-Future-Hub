@@ -196,11 +196,41 @@
             <nav class="navbar navbar-dashboard d-flex justify-content-between align-items-center">
                 <button class="btn btn-light" id="menu-toggle"><i class="fas fa-bars"></i></button>
                 <div class="d-flex align-items-center gap-3">
-                    @if(Auth::check() && Auth::user()->role === 'admin' && session('login_time'))
-                        <div class="text-secondary me-2 fw-medium">
-                            <i class="fas fa-clock me-1 text-primary"></i> <span id="session-timer">00:00</span>
-                        </div>
-                    @endif
+
+                    
+                    @auth
+                    <!-- Notifications Dropdown -->
+                    <div class="dropdown me-3 dropdown-notifications">
+                        <a href="#" class="text-secondary position-relative dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-count" style="font-size: 0.6rem;">
+                                0
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                            <li><h6 class="dropdown-header fw-bold border-bottom pb-2">Notifications</h6></li>
+                            <div id="notification-list">
+                                @forelse(Auth::user()->unreadNotifications->take(5) as $notification)
+                                    <li>
+                                        <a class="dropdown-item py-2 border-bottom mark-as-read" href="{{ $notification->data['url'] ?? '#' }}" data-id="{{ $notification->id }}">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1 text-primary fw-bold" style="font-size: 0.9rem;">{{ Str::limit($notification->data['title'] ?? 'New Notification', 30) }}</h6>
+                                                <small class="text-muted" style="font-size: 0.75rem;">{{ $notification->created_at->diffForHumans() }}</small>
+                                            </div>
+                                            <p class="mb-1 text-secondary text-wrap" style="font-size: 0.85rem; white-space: normal;">{{ $notification->data['message'] ?? '' }}</p>
+                                        </a>
+                                    </li>
+                                @empty
+                                    <li class="p-3 text-center text-muted" id="no-notifications">
+                                        <small>No new notifications</small>
+                                    </li>
+                                @endforelse
+                            </div>
+                            <li><a class="dropdown-item text-center text-primary fw-bold pt-2 border-top" href="#" id="mark-all-read">Mark all as read</a></li>
+                        </ul>
+                    </div>
+                    @endauth
+
                     <span class="text-secondary fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary fw-bold"
                         style="width: 40px; height: 40px; border: 1px solid #eee;">
@@ -217,6 +247,8 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         var el = document.getElementById("wrapper");
         var toggleButton = document.getElementById("menu-toggle");
@@ -225,30 +257,110 @@
             el.classList.toggle("toggled");
         };
 
-        @if(Auth::check() && Auth::user()->role === 'admin' && session('login_time'))
-            const loginTime = new Date("{{ session('login_time') }}").getTime();
 
-            function updateTimer() {
-                const now = new Date().getTime();
-                const diff = now - loginTime;
 
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                const formattedTime =
-                    (hours > 0 ? hours.toString().padStart(2, '0') + ':' : '') +
-                    minutes.toString().padStart(2, '0') + ':' +
-                    seconds.toString().padStart(2, '0');
-
-                const timerEl = document.getElementById('session-timer');
-                if (timerEl) timerEl.textContent = formattedTime;
+        @auth
+        $(document).ready(function() {
+            let userId = {{ Auth::id() }};
+            let unreadCount = {{ Auth::user()->unreadNotifications->count() }};
+            
+            function updateBadge() {
+                let badge = $('#notification-count');
+                badge.text(unreadCount);
+                if (unreadCount > 0) {
+                    badge.removeClass('d-none');
+                } else {
+                    badge.addClass('d-none');
+                }
             }
+            
+            updateBadge();
 
-            setInterval(updateTimer, 1000);
-            updateTimer(); // Initial call
-        @endif
+            // Listen to Pusher events via Laravel Echo
+            setTimeout(() => {
+                if(window.Echo) {
+                    window.Echo.private('App.Models.User.' + userId)
+                        .notification((notification) => {
+                            unreadCount++;
+                            updateBadge();
+                            
+                            // Remove "No notifications" message if it exists
+                            $('#no-notifications').remove();
+                            
+                            // Create new notification HTML
+                            let newNotification = `
+                                <li>
+                                    <a class="dropdown-item py-2 border-bottom mark-as-read bg-light" href="${notification.url || '#'}" data-id="${notification.id}">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 text-primary fw-bold" style="font-size: 0.9rem;">${notification.title.substring(0, 30)}</h6>
+                                            <small class="text-success fw-bold" style="font-size: 0.75rem;">Just now</small>
+                                        </div>
+                                        <p class="mb-1 text-secondary text-wrap" style="font-size: 0.85rem; white-space: normal;">${notification.message}</p>
+                                    </a>
+                                </li>
+                            `;
+                            
+                            // Prepend to list
+                            $('#notification-list').prepend(newNotification);
+                            
+                            // Keep max 5 items
+                            if($('#notification-list li').length > 5) {
+                                $('#notification-list li:last').remove();
+                            }
+                        });
+                }
+            }, 1000);
+
+            // Mark single notification as read
+            $(document).on('click', '.mark-as-read', function(e) {
+                let id = $(this).data('id');
+                let url = $(this).attr('href');
+                let item = $(this);
+                
+                if(id && item.hasClass('bg-light')) {
+                    e.preventDefault();
+                    
+                    $.ajax({
+                        url: '{{ route('notifications.mark-as-read') }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id
+                        },
+                        success: function() {
+                            item.removeClass('bg-light');
+                            unreadCount--;
+                            updateBadge();
+                            if(url !== '#') window.location.href = url;
+                        }
+                    });
+                }
+            });
+
+            // Mark all as read
+            $('#mark-all-read').click(function(e) {
+                e.preventDefault();
+                
+                if(unreadCount > 0) {
+                    $.ajax({
+                        url: '{{ route('notifications.mark-all-read') }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function() {
+                            $('.mark-as-read').removeClass('bg-light');
+                            unreadCount = 0;
+                            updateBadge();
+                        }
+                    });
+                }
+            });
+        });
+        @endauth
     </script>
+    @include('partials.chat_widget')
+    @yield('scripts')
 </body>
 
 </html>

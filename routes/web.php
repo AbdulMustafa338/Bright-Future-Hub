@@ -108,6 +108,13 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('student.dashboard');
     })->name('dashboard');
 
+    // Notifications Routes
+    Route::post('/notifications/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+
+    // Chat Routes
+    Route::post('/chat/message', [\App\Http\Controllers\ChatController::class, 'handleMessage'])->name('chat.message');
+
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');

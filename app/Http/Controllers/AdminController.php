@@ -56,12 +56,40 @@ class AdminController extends Controller
             'total_applications' => Application::count(),
         ];
 
+        // --- Data for User Growth Chart (Last 30 Days) ---
+        $userGrowthData = [];
+        $userGrowthLabels = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $count = User::whereDate('created_at', $date)->count();
+            $userGrowthLabels[] = now()->subDays($i)->format('M d');
+            $userGrowthData[] = $count;
+        }
+
+        // --- Data for Opportunity Distribution Chart ---
+        $opportunityDistribution = [
+            'Job' => Opportunity::where('type', 'Job')->count(),
+            'Internship' => Opportunity::where('type', 'Internship')->count(),
+            'Scholarship' => Opportunity::where('type', 'Scholarship')->count(),
+        ];
+
+        $chartData = [
+            'userGrowth' => [
+                'labels' => $userGrowthLabels,
+                'data' => $userGrowthData,
+            ],
+            'opportunityDistribution' => [
+                'labels' => array_keys($opportunityDistribution),
+                'data' => array_values($opportunityDistribution),
+            ],
+        ];
+
         $recentOpportunities = Opportunity::with('organization')
             ->latest()
             ->take(5)
             ->get();
 
-        return view('admin.dashboard.index', compact('stats', 'recentOpportunities'));
+        return view('admin.dashboard.index', compact('stats', 'recentOpportunities', 'chartData'));
     }
 
     /**
@@ -90,6 +118,12 @@ class AdminController extends Controller
     {
         $opportunity = Opportunity::findOrFail($id);
         $opportunity->update(['status' => 'approved']);
+
+        // Dispatch notification to all students
+        $students = User::where('role', 'student')->get();
+        foreach ($students as $student) {
+            $student->notify(new \App\Notifications\NewOpportunityNotification($opportunity));
+        }
 
         return back()->with('success', 'Opportunity approved successfully!');
     }

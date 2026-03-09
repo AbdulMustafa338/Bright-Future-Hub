@@ -10,17 +10,7 @@
         </div>
     </div>
 
-    @if(session('last_login_diff'))
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-info alert-dismissible fade show" role="alert">
-                    <i class="fas fa-history me-2"></i>Welcome back! You last logged in
-                    <strong>{{ session('last_login_diff') }}</strong> ago.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        </div>
-    @endif
+
 
     <!-- Stats Cards -->
     <div class="row g-4 mb-5">
@@ -67,39 +57,28 @@
         </div>
     </div>
 
-    <!-- Quick Stats -->
+    <!-- Analytics Charts -->
     <div class="row g-4 mb-5">
-        <div class="col-md-6">
-            <div class="glass-card p-4">
-                <h5 class="fw-bold mb-3">User Distribution</h5>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Students</span>
-                    <span class="fw-bold">{{ $stats['total_students'] }}</span>
+        <div class="col-lg-8">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">User Growth (Last 30 Days)</h5>
+                    <i class="fas fa-chart-line text-primary border rounded p-2"></i>
                 </div>
-                <div class="progress mb-3" style="height: 8px;">
-                    <div class="progress-bar bg-primary" role="progressbar"
-                        style="width: {{ $stats['total_users'] > 0 ? ($stats['total_students'] / $stats['total_users'] * 100) : 0 }}%">
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Organizations</span>
-                    <span class="fw-bold">{{ $stats['total_organizations'] }}</span>
-                </div>
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar bg-info" role="progressbar"
-                        style="width: {{ $stats['total_users'] > 0 ? ($stats['total_organizations'] / $stats['total_users'] * 100) : 0 }}%">
-                    </div>
+                <div style="height: 300px;">
+                    <canvas id="userGrowthChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="glass-card p-4">
-                <h5 class="fw-bold mb-3">Total Applications</h5>
-                <div class="text-center">
-                    <h2 class="fw-bold text-primary mb-0">{{ $stats['total_applications'] }}</h2>
-                    <p class="text-muted small">Applications submitted</p>
+        <div class="col-lg-4">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Opportunity Types</h5>
+                    <i class="fas fa-chart-pie text-success border rounded p-2"></i>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="opportunityDistributionChart"></canvas>
                 </div>
             </div>
         </div>
@@ -162,4 +141,81 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- User Growth Chart ---
+            const growthCtx = document.getElementById('userGrowthChart').getContext('2d');
+            new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: {!! json_encode($chartData['userGrowth']['labels']) !!},
+                    datasets: [{
+                        label: 'New Users',
+                        data: {!! json_encode($chartData['userGrowth']['data']) !!},
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#0d6efd'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: { precision: 0 }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // --- Opportunity Distribution Chart ---
+            const distCtx = document.getElementById('opportunityDistributionChart').getContext('2d');
+            new Chart(distCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {!! json_encode($chartData['opportunityDistribution']['labels']) !!},
+                    datasets: [{
+                        data: {!! json_encode($chartData['opportunityDistribution']['data']) !!},
+                        backgroundColor: [
+                            '#0d6efd', // Job
+                            '#198754', // Internship
+                            '#ffc107'  // Scholarship
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        });
+    </script>
 @endsection

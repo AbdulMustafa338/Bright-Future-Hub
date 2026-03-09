@@ -234,6 +234,38 @@
 
                     @auth
                         <li class="nav-item"><a class="nav-link" href="{{ url('/dashboard') }}">Dashboard</a></li>
+                        
+                        <!-- Notifications Dropdown -->
+                        <li class="nav-item dropdown dropdown-notifications me-2">
+                            <a class="nav-link dropdown-toggle position-relative" href="#" id="mainNotificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                <i class="fas fa-bell"></i>
+                                <span class="position-absolute top-10 start-80 translate-middle badge rounded-pill bg-danger d-none" id="main-notification-count" style="font-size: 0.55rem; padding: 0.25em 0.4em;">
+                                    0
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="mainNotificationsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                                <li><h6 class="dropdown-header fw-bold text-primary border-bottom pb-2">Notifications</h6></li>
+                                <div id="main-notification-list">
+                                    @forelse(Auth::user()->unreadNotifications->take(5) as $notification)
+                                        <li>
+                                            <a class="dropdown-item py-2 border-bottom mark-as-read" href="{{ $notification->data['url'] ?? '#' }}" data-id="{{ $notification->id }}">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h6 class="mb-1 text-dark fw-bold" style="font-size: 0.9rem;">{{ Str::limit($notification->data['title'] ?? 'New Notification', 30) }}</h6>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">{{ $notification->created_at->diffForHumans() }}</small>
+                                                </div>
+                                                <p class="mb-1 text-secondary text-wrap" style="font-size: 0.85rem; white-space: normal;">{{ $notification->data['message'] ?? '' }}</p>
+                                            </a>
+                                        </li>
+                                    @empty
+                                        <li class="p-3 text-center text-muted" id="main-no-notifications">
+                                            <small>No new notifications</small>
+                                        </li>
+                                    @endforelse
+                                </div>
+                                <li><a class="dropdown-item text-center text-primary fw-bold pt-2 border-top" href="#" id="main-mark-all-read">Mark all as read</a></li>
+                            </ul>
+                        </li>
+
                         <li class="nav-item ms-3">
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -313,14 +345,111 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         AOS.init({
             duration: 800,
             once: true,
             offset: 100
         });
+
+        @auth
+        $(document).ready(function() {
+            let userId = {{ Auth::id() }};
+            let unreadCount = {{ Auth::user()->unreadNotifications->count() }};
+            
+            function updateBadge() {
+                let badge = $('#main-notification-count');
+                badge.text(unreadCount);
+                if (unreadCount > 0) {
+                    badge.removeClass('d-none');
+                } else {
+                    badge.addClass('d-none');
+                }
+            }
+            
+            updateBadge();
+
+            // Listen to Pusher events via Laravel Echo
+            setTimeout(() => {
+                if(window.Echo) {
+                    window.Echo.private('App.Models.User.' + userId)
+                        .notification((notification) => {
+                            unreadCount++;
+                            updateBadge();
+                            
+                            $('#main-no-notifications').remove();
+                            
+                            let newNotification = `
+                                <li>
+                                    <a class="dropdown-item py-2 border-bottom mark-as-read bg-light" href="${notification.url || '#'}" data-id="${notification.id}">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 text-primary fw-bold" style="font-size: 0.9rem;">${notification.title.substring(0, 30)}</h6>
+                                            <small class="text-success fw-bold" style="font-size: 0.75rem;">Just now</small>
+                                        </div>
+                                        <p class="mb-1 text-secondary text-wrap" style="font-size: 0.85rem; white-space: normal;">${notification.message}</p>
+                                    </a>
+                                </li>
+                            `;
+                            
+                            $('#main-notification-list').prepend(newNotification);
+                            
+                            if($('#main-notification-list li').length > 5) {
+                                $('#main-notification-list li:last').remove();
+                            }
+                        });
+                }
+            }, 1000);
+
+            $(document).on('click', '.mark-as-read', function(e) {
+                let id = $(this).data('id');
+                let url = $(this).attr('href');
+                let item = $(this);
+                
+                if(id && item.hasClass('bg-light')) {
+                    e.preventDefault();
+                    
+                    $.ajax({
+                        url: '{{ route('notifications.mark-as-read') }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id
+                        },
+                        success: function() {
+                            item.removeClass('bg-light');
+                            unreadCount--;
+                            updateBadge();
+                            if(url !== '#') window.location.href = url;
+                        }
+                    });
+                }
+            });
+
+            $('#main-mark-all-read').click(function(e) {
+                e.preventDefault();
+                
+                if(unreadCount > 0) {
+                    $.ajax({
+                        url: '{{ route('notifications.mark-all-read') }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function() {
+                            $('.mark-as-read').removeClass('bg-light');
+                            unreadCount = 0;
+                            updateBadge();
+                        }
+                    });
+                }
+            });
+        });
+        @endauth
     </script>
     @yield('scripts')
+    @include('partials.chat_widget')
 </body>
 
 </html>

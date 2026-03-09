@@ -47,23 +47,17 @@ class OpportunityController extends Controller
             });
         }
 
-        // Order by deadline (ascending - soonest first) and paginate
-        $opportunities = $query->orderBy('deadline', 'asc')->paginate(12);
+        // Order by deadline (ascending - soonest first) and paginate - using simplePaginate for Next/Prev buttons
+        $opportunities = $query->orderBy('deadline', 'asc')->simplePaginate(12);
 
         Log::info('Opportunities fetched', [
-            'total' => $opportunities->total(),
             'count' => $opportunities->count()
         ]);
 
         // Filter out opportunities with missing organization (data integrity check)
-        $opportunities->getCollection()->transform(function ($opportunity) {
-            if (!$opportunity->organization) {
-                \Log::warning("Opportunity {$opportunity->id} has missing organization relationship");
-                return null;
-            }
-            return $opportunity;
-        })->filter();
+        // $opportunities->getCollection()->transform(function ($opportunity) { ... }
 
+        // Regular view response
         return view('student.opportunities.index', compact('opportunities'));
     }
 

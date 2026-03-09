@@ -323,27 +323,7 @@
             </div>
         </div>
     </section>
-    <!-- Trusted Partners Section -->
-    <section class="partners-section">
-        <div class="container text-center">
-            <p class="text-uppercase text-muted fw-bold small letter-spacing-2 mb-4">Trusted by Top Institutes &
-                Organizations</p>
-            <div class="row justify-content-center align-items-center g-5">
-                @forelse($partners as $partner)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <img src="{{ asset($partner->logo) }}" alt="{{ $partner->organization_name }}"
-                            class="img-fluid partners-img" style="max-height: 250px; width: auto; object-fit: contain;"
-                            title="{{ $partner->organization_name }}">
-                    </div>
-                @empty
-                    <div class="col-12">
-                        <img src="{{ asset('images/university_logos_placeholder_1768811641915.png') }}"
-                            alt="Partner Universities" class="img-fluid" style="max-height: 250px;">
-                    </div>
-                @endforelse
-            </div>
-        </div>
-    </section>
+
 
     <!-- Latest Opportunities Section -->
     <section class="section-padding py-5">
@@ -407,7 +387,28 @@
             </div>
         </div>
     </section>
-
+    <!-- Trusted Partners Section -->
+    <section class="partners-section">
+        <div class="container text-center">
+            <p class="text-uppercase text-muted fw-bold small letter-spacing-2 mb-4">Trusted by Top Institutes &
+                Organizations</p>
+            <div class="row justify-content-center align-items-center g-5">
+                @forelse($partners as $partner)
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <img src="{{ asset($partner->logo) }}" alt="{{ $partner->organization_name }}"
+                            class="img-fluid partners-img" style="max-height: 250px; width: auto; object-fit: contain;"
+                            title="{{ $partner->organization_name }}">
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <img src="{{ asset('images/university_logos_placeholder_1768811641915.png') }}"
+                            alt="Partner Universities" class="img-fluid" style="max-height: 250px;">
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+    
     <!-- Student Testimonials Section -->
     <section class="py-5 bg-light position-relative">
         <div class="container py-5">
