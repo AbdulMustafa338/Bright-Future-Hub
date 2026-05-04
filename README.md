@@ -1,8 +1,8 @@
-# Bright Future Hub 🎓
+# Bright Future Hub 
 
 Bright Future Hub is an advanced, AI-powered platform designed to bridge the gap between students and global academic/career opportunities. Built as a comprehensive Final Year Project (FYP), it features role-based dashboards, an AI Resume Scorer, an intelligent Career Roadmap generator, and real-time smart notifications.
 
-## 🚀 Key Features
+## Key Features
 
 - **Role-Based Architecture**: Dedicated, secure portals for Students, Organizations, and System Admins.
 - **AI-Powered Resume Builder & Scorer**: Students can build professional CVs and get them analyzed by Google Gemini AI against specific opportunities.
@@ -11,14 +11,14 @@ Bright Future Hub is an advanced, AI-powered platform designed to bridge the gap
 - **Opportunity Matching System**: Automated smart notifications sent to students when a new or modified opportunity matches their skills and interests.
 - **Premium UI/UX**: Designed with a "Modern Academic Glassmorphism" aesthetic, providing a highly engaging and responsive experience.
 
-## 💻 Technology Stack
+##  Technology Stack
 
 - **Backend Framework**: Laravel 10 (PHP)
 - **Frontend**: Blade Templates, Bootstrap 5, Custom Vanilla CSS (Glassmorphism)
 - **Database**: MySQL
 - **AI Integration**: Google Gemini AI (Pro Model)
 
-## 🛠️ Installation & Setup Guide
+##  Installation & Setup Guide
 
 Follow these steps to run the project locally on your machine (e.g., using XAMPP).
 
@@ -76,12 +76,12 @@ php artisan serve
 ```
 Your application will now be running at `http://127.0.0.1:8000`.
 
-## 🔑 Default Test Accounts
+##  Default Test Accounts
 After running the seeder, you can log in using the following credentials:
 
 - **Admin Account**: `admin@brightfuture.com` | Password: `password`
 - **Organization Account**: `org@techuni.com` | Password: `password`
 - **Student Account**: `student@example.com` | Password: `password`
 
-## 📄 License
+##  License
 This project is developed as a Final Year Project and is intended for academic purposes.
