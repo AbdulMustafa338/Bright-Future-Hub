@@ -26,6 +26,7 @@ class Opportunity extends Model
         'description',      // Full details about the opportunity
         'eligibility',      // Who can apply (requirements)
         'type',             // internship, scholarship, or competition
+        'image',            // Opportunity image
         'deadline',         // Last date to apply
         'location',         // Where it's located
         'fees',             // Any fees involved
@@ -56,16 +57,6 @@ class Opportunity extends Model
     public function applications()
     {
         return $this->hasMany(Application::class);
-    }
-
-    /**
-     * Get the rejection message (if this was rejected by admin)
-     * 
-     * If admin rejected this opportunity, this contains the reason why.
-     */
-    public function rejectionMessage()
-    {
-        return $this->hasOne(RejectionMessage::class);
     }
 
     /**

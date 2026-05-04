@@ -23,189 +23,211 @@
 
     <!-- AOS Animation CSS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Modern Design System -->
+    <link href="{{ asset('css/modern.css') }}" rel="stylesheet">
 
     <style>
-        :root {
-            /* Premium Academic Palette */
-            --primary-color: #002147;
-            /* Oxford Blue */
-            --primary-light: #003366;
-            --accent-color: #FFD700;
-            /* Gold */
-            --accent-hover: #FDB931;
-            --text-dark: #1a1a1a;
-            --text-muted: #6c757d;
-            --bg-light: #f8f9fa;
-            --bg-white: #ffffff;
-            --border-color: #e9ecef;
-
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, #002147 0%, #004e92 100%);
-            --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
-
-            /* Spacing & Shadows */
-            --section-padding: 80px 0;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.12);
-            --border-radius: 12px;
-        }
-
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-            overflow-x: hidden;
+            background-color: var(--bg-body);
+            padding-top: 85px; /* Space for fixed navbar */
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            color: var(--primary-color);
-        }
-
-        a {
-            text-decoration: none;
-            color: var(--primary-color);
-            transition: all 0.3s ease;
-        }
-
-        a:hover {
-            color: var(--accent-hover);
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 12px 30px;
-            font-weight: 500;
-            border-radius: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-            border-color: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 33, 71, 0.2);
-        }
-
-        .btn-accent {
-            background: var(--accent-color);
-            color: var(--primary-color);
-            border: none;
-            padding: 12px 30px;
-            font-weight: 600;
-            border-radius: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
-        }
-
-        .btn-accent:hover {
-            background: var(--accent-hover);
-            color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-        }
-
-        /* Navbar */
+        /* Fixed Navbar Modernization */
         .navbar {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-            padding: 15px 0;
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid rgba(0, 33, 71, 0.1);
+            transition: all 0.4s ease;
+            min-height: 85px;
         }
 
-        .navbar-brand {
+        .navbar-collapse {
+            background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
+            padding: 1rem;
+            border-radius: 0 0 15px 15px;
+            margin-top: 10px;
+        }
+        
+        @media (min-width: 992px) {
+            .navbar-collapse {
+                background: transparent;
+                padding: 0;
+                margin-top: 0;
+            }
+        }
+
+        .navbar-brand, .nav-link {
+            color: #002147 !important; /* Premium Navy color for contrast */
+            font-weight: 600 !important;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #004a99 !important;
+            background: rgba(0, 33, 71, 0.08) !important;
+        }
+
+        .navbar .btn-accent {
+            background: #002147 !important;
+            color: white !important;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 24px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .navbar .btn-accent:hover {
+            background: #004a99 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 33, 71, 0.2);
+        }
+
+
+
+        /* Notifications Premium Look */
+        .dropdown-notifications .dropdown-menu {
+            border-radius: 16px !important;
+            padding: 1rem 0;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            box-shadow: var(--shadow-lg) !important;
+        }
+
+        /* Global Page Transitions */
+        [data-aos] {
+            pointer-events: none;
+        }
+        .aos-animate {
+            pointer-events: auto;
+        }
+
+        /* Footer Premium Modernization */
+        .footer {
+            background: #001a35; /* Even deeper navy */
+            position: relative;
+            z-index: 10;
+            padding-top: 5rem;
+            padding-bottom: 2rem;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
             font-weight: 700;
             font-size: 1.8rem;
-            color: var(--primary-color) !important;
+            color: #fff !important;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .navbar-brand i {
+        .footer-logo i {
             color: var(--accent-color);
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
         }
 
-        .nav-link {
-            font-weight: 500;
-            color: var(--primary-color) !important;
-            margin: 0 10px;
+        .footer h3, .footer h5 {
+            color: white !important;
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
             position: relative;
         }
 
-        .nav-link::after {
+        .footer h5::after {
             content: '';
             position: absolute;
-            width: 0;
+            bottom: -8px;
+            left: 0;
+            width: 30px;
             height: 2px;
-            bottom: 0;
-            left: 50%;
-            background-color: var(--accent-color);
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-        }
-
-        /* Footer */
-        .footer {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 70px 0 30px;
-            margin-top: 50px;
-        }
-
-        .footer h5 {
-            color: var(--accent-color);
-            margin-bottom: 25px;
-            font-weight: 600;
+            background: var(--accent-color);
+            border-radius: 2px;
         }
 
         .footer-link {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.65) !important;
+            padding: 8px 0;
             display: block;
-            margin-bottom: 12px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.95rem;
         }
 
         .footer-link:hover {
-            color: var(--accent-color);
-            padding-left: 5px;
+            color: var(--accent-color) !important;
+            transform: translateX(8px);
         }
 
         .social-link {
-            display: inline-flex;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 50%;
-            margin-right: 10px;
-            transition: all 0.3s;
+            color: #fff !important;
+            margin-right: 12px;
+            transition: all 0.4s;
+            text-decoration: none !important;
         }
 
         .social-link:hover {
             background: var(--accent-color);
-            color: var(--primary-color);
-            transform: translateY(-3px);
+            color: #002147 !important;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        .newsletter-glass {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .newsletter-input {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+            border-radius: 12px 0 0 12px !important;
+            padding: 12px 18px !important;
+        }
+
+        .newsletter-input::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        .newsletter-btn {
+            background: var(--accent-color) !important;
+            color: #002147 !important;
+            border: none !important;
+            border-radius: 0 12px 12px 0 !important;
+            padding: 0 25px !important;
+            font-weight: 700 !important;
+        }
+
+        .footer-bottom {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem 0;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
     </style>
     @yield('styles')
@@ -220,8 +242,10 @@
                 <i class="fa-solid fa-graduation-cap fa-lg"></i>
                 Bright Future Hub
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler border-0 shadow-none px-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <div class="bg-white rounded-3 shadow-sm d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="fas fa-bars text-primary fa-lg"></i>
+                </div>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
@@ -293,50 +317,59 @@
     <footer class="footer">
         <div class="container">
             <div class="row g-5">
-                <div class="col-lg-4">
-                    <h3 class="fw-bold mb-4 text-white" style="font-family: 'Playfair Display';"><i
-                            class="fa-solid fa-graduation-cap text-warning me-2"></i>Bright Future Hub</h3>
-                    <p class="opacity-75 mb-4">Empowering students and connecting them with world-class opportunities.
-                        Your gateway to scholarships, internships, and admissions in trusted organizations.</p>
+                <div class="col-lg-4" data-aos="fade-up">
+                    <a href="{{ url('/') }}" class="footer-logo">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        Bright Future Hub
+                    </a>
+                    <p class="opacity-75 mb-4" style="line-height: 1.8;">Empowering the next generation of global leaders by connecting students with world-class scholarships, internships, and admissions. Your future starts here.</p>
                     <div class="d-flex">
-                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-6">
+                <div class="col-lg-2 col-md-6" data-aos="fade-up" data-aos-delay="100">
                     <h5>Quick Links</h5>
-                    <a href="{{ url('/') }}" class="footer-link">Home</a>
-                    <a href="#" class="footer-link">Search Opportunities</a>
-                    <a href="#" class="footer-link">Universities</a>
-                    <a href="#" class="footer-link">Scholarships</a>
+                    <div class="mt-4">
+                        <a href="{{ url('/') }}" class="footer-link">Home Navigation</a>
+                        <a href="{{ route('student.opportunities.index') }}" class="footer-link">Explore Opportunities</a>
+                        <a href="#how-it-works" class="footer-link">How It Works</a>
+                        <a href="{{ route('register') }}" class="footer-link">Join As Student</a>
+                    </div>
                 </div>
-                <div class="col-lg-2 col-md-6">
+                <div class="col-lg-2 col-md-6" data-aos="fade-up" data-aos-delay="200">
                     <h5>Support</h5>
-                    <a href="#" class="footer-link">Help Center</a>
-                    <a href="#" class="footer-link">Terms of Service</a>
-                    <a href="#" class="footer-link">Privacy Policy</a>
-                    <a href="#" class="footer-link">Contact Us</a>
+                    <div class="mt-4">
+                        <a href="#" class="footer-link">Resource Center</a>
+                        <a href="#" class="footer-link">Privacy Policy</a>
+                        <a href="#" class="footer-link">Terms of Service</a>
+                        <a href="#" class="footer-link">Contact Support</a>
+                    </div>
                 </div>
-                <div class="col-lg-4 col-md-12">
-                    <h5>Newsletter</h5>
-                    <p class="opacity-75">Subscribe to get the latest scholarships and internship updates directly to
-                        your inbox.</p>
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control border-0 p-3" placeholder="Enter your email"
-                            aria-label="Email">
-                        <button class="btn btn-accent px-4 fw-bold" type="button">Subscribe</button>
+                <div class="col-lg-4 col-md-12" data-aos="fade-up" data-aos-delay="300">
+                    <div class="newsletter-glass">
+                        <h5>Stay Updated</h5>
+                        <p class="opacity-75 small mb-4">Get the latest opportunities delivered to your inbox weekly.</p>
+                        <div class="input-group">
+                            <input type="email" class="form-control newsletter-input" placeholder="Your email address">
+                            <button class="btn newsletter-btn" type="button">Join</button>
+                        </div>
+                        <p class="mt-3 x-small opacity-50 mb-0"><i class="fas fa-shield-alt me-1"></i> We respect your privacy.</p>
                     </div>
                 </div>
             </div>
-            <hr class="my-5" style="opacity: 0.1;">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0 opacity-50">&copy; {{ date('Y') }} Bright Future Hub. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <p class="mb-0 opacity-50">Designed for Education.</p>
+        </div>
+        <div class="footer-bottom">
+            <div class="container text-center">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start">
+                        <p class="mb-0 opacity-50 small">&copy; {{ date('Y') }} Bright Future Hub. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                        <p class="mb-0 opacity-50 small">Developed with <i class="fas fa-heart text-danger mx-1"></i> for better Education.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -448,6 +481,7 @@
         });
         @endauth
     </script>
+    @stack('scripts')
     @yield('scripts')
     @include('partials.chat_widget')
 </body>

@@ -30,7 +30,26 @@ class NewOpportunityNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast'];
+        return ['database', 'broadcast', 'mail'];
+    }
+
+    /**
+     * Get the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+                    ->subject('New Opportunity Match: ' . $this->opportunity->title)
+                    ->greeting('Hello ' . $notifiable->name . '!')
+                    ->line('A new opportunity matching your profile has been posted.')
+                    ->line('**Title:** ' . $this->opportunity->title)
+                    ->line('**Type:** ' . ucfirst($this->opportunity->type))
+                    ->line('**Deadline:** ' . $this->opportunity->deadline->format('M d, Y'))
+                    ->action('View Opportunity', route('opportunities.show', $this->opportunity->id))
+                    ->line('Apply early to increase your chances of selection. Good luck!');
     }
 
     /**

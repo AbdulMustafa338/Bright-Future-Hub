@@ -10,9 +10,6 @@
                     <h2 class="fw-bold">All Opportunities</h2>
                     <p class="text-muted">Manage all opportunities on the platform</p>
                 </div>
-                <a href="{{ route('admin.opportunities.pending') }}" class="btn btn-warning">
-                    <i class="fas fa-clock me-2"></i>Pending Approvals
-                </a>
             </div>
         </div>
     </div>
@@ -24,34 +21,6 @@
         </div>
     @endif
 
-    <!-- Filter -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="glass-card p-3">
-                <form method="GET" action="{{ route('admin.opportunities.index') }}">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">Filter by Status</label>
-                            <select class="form-select" name="status">
-                                <option value="">All Statuses</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
-                                </option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved
-                                </option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-filter me-1"></i>Filter
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <div class="row">
         <div class="col-12">
@@ -64,7 +33,6 @@
                                     <th>Title</th>
                                     <th>Organization</th>
                                     <th>Type</th>
-                                    <th>Status</th>
                                     <th>Deadline</th>
                                     <th>Applications</th>
                                     <th>Actions</th>
@@ -79,14 +47,6 @@
                                             <span class="badge bg-secondary">{{ ucfirst($opp->type) }}</span>
                                         </td>
                                         <td>
-                                            @if($opp->status === 'pending')
-                                                <span class="badge bg-warning">Pending</span>
-                                            @elseif($opp->status === 'approved')
-                                                <span class="badge bg-success">Approved</span>
-                                            @else
-                                                <span class="badge bg-danger">Rejected</span>
-                                            @endif
-                                        </td>
                                         <td>
                                             {{ $opp->deadline->format('M d, Y') }}
                                             @if($opp->isExpired())

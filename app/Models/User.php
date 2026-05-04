@@ -99,6 +99,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all resumes created by this user
+     */
+    public function resumes()
+    {
+        return $this->hasMany(Resume::class);
+    }
+
+    /**
      * Quick check if this user is an admin
      * 
      * Usage: if ($user->isAdmin()) { ... }

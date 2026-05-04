@@ -14,6 +14,10 @@ class StudentProfile extends Model
         'field_of_study',
         'education_level',
         'interests',
+        'age',
+        'location',
+        'skills',
+        'profile_image',
     ];
 
     /**

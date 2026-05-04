@@ -1,0 +1,149 @@
+/* modern.css - Premium Design System for Bright Future Hub */
+
+:root {
+    /* Refined Academic Palette */
+    --primary: #002147;
+    --primary-light: #004a99;
+    --accent: #FFD700;
+    --accent-hover: #FDB931;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --info: #3498db;
+    
+    /* Neutral Shades */
+    --bg-body: #f8fafc;
+    --bg-card: rgba(255, 255, 255, 0.9);
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: rgba(0, 33, 71, 0.08);
+    
+    /* Glassmorphism Tokens */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 12px 40px 0 rgba(0, 33, 71, 0.08);
+    
+    /* Shadows & Transitions */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 10px 25px rgba(0,33,71,0.06);
+    --shadow-lg: 0 20px 50px rgba(0,33,71,0.12);
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Enhancements */
+body, html {
+    overflow-x: hidden;
+}
+
+body {
+    background: var(--bg-body);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(255, 215, 0, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(0, 33, 71, 0.05) 0px, transparent 50%);
+    color: var(--text-main);
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+}
+
+/* Glass Card System */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 20px;
+    transition: var(--transition);
+}
+
+.glass-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+/* Premium Buttons */
+.btn-premium {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(0,33,71,0.15);
+}
+
+.btn-premium:hover {
+    background: var(--primary-light);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,33,71,0.3);
+}
+
+.btn-premium-accent {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: var(--transition);
+}
+
+/* Sidebar Custom Styling */
+.neo-sidebar {
+    background: white;
+    box-shadow: 15px 0 40px rgba(0,0,0,0.02);
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    margin: 8px 18px;
+    border-radius: 14px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.sidebar-link i {
+    width: 20px;
+    margin-right: 15px;
+    font-size: 1.2rem;
+}
+
+.sidebar-link:hover {
+    background: rgba(0, 33, 71, 0.04);
+    color: var(--primary);
+}
+
+.sidebar-link.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 10px 25px rgba(0, 33, 71, 0.2);
+}
+
+/* Hover lift images */
+.hover-lift {
+    transition: var(--transition);
+}
+
+.hover-lift:hover {
+    transform: scale(1.03);
+}
+
+/* Loading Shimmer Effect */
+.shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

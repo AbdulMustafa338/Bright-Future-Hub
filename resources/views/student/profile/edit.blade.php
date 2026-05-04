@@ -33,7 +33,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('student.profile.update') }}">
+                <form method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -52,6 +52,39 @@
                     </div>
 
                     <hr class="my-4">
+
+                    <div class="mb-4">
+                        <label for="profile_image" class="form-label fw-bold">Profile Image</label>
+                        <input class="form-control @error('profile_image') is-invalid @enderror" type="file" id="profile_image" name="profile_image" accept="image/jpeg,image/png,image/gif">
+                        @if($profile && $profile->profile_image)
+                            <div class="mt-2"><img src="{{ asset('storage/' . $profile->profile_image) }}" alt="Current Image" style="width: 80px; height: 80px; object-fit: cover;" class="rounded-circle shadow-sm"></div>
+                            <div class="mt-1 text-muted small">Current image. Uploading a new one will replace it.</div>
+                        @else
+                            <div class="mt-1 text-muted small">Upload a clear photo (max 2MB, JPEG/PNG).</div>
+                        @endif
+                        @error('profile_image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="age" class="form-label fw-bold">Age <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control @error('age') is-invalid @enderror" id="age" name="age"
+                                value="{{ old('age', $profile->age ?? '') }}" placeholder="e.g., 22" required>
+                            @error('age')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="location" class="form-label fw-bold">Location <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('location') is-invalid @enderror" id="location" name="location"
+                                value="{{ old('location', $profile->location ?? '') }}" placeholder="e.g., Karachi, Pakistan" required>
+                            @error('location')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
 
                     <div class="mb-4">
                         <label for="field_of_study" class="form-label fw-bold">Field of Study</label>
@@ -81,14 +114,67 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="interests" class="form-label fw-bold">Interests & Skills</label>
-                        <textarea class="form-control @error('interests') is-invalid @enderror" id="interests"
-                            name="interests" rows="4"
-                            placeholder="Tell us about your interests, skills, and what you're looking for...">{{ old('interests', $user->interests ?? '') }}</textarea>
-                        @error('interests')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                        <label class="form-label fw-bold">Skills & Interests <span class="text-danger">*</span></label>
+                        <p class="text-muted small mb-3">Select your technical and soft skills, as well as your fields of interest.</p>
+                        
+                        @php
+                            // Massive list of predefined skills
+                            $predefinedSkills = [
+                                'Software Engineering', 'PHP', 'Laravel', 'Python', 'JavaScript', 'React', 'Vue.js', 'Node.js', 'Java', 'C++', 'C#', 'SQL', 'NoSQL', 'MongoDB', 'Angular', 'TypeScript', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'Dart', 'Flutter', 'React Native',
+                                'Machine Learning', 'Data Science', 'Artificial Intelligence', 'Deep Learning', 'NLP', 'Computer Vision',
+                                'Cybersecurity', 'Ethical Hacking', 'Network Security', 'Cryptography',
+                                'Cloud Computing', 'AWS', 'Azure', 'Google Cloud (GCP)', 'DevOps', 'Docker', 'Kubernetes', 'CI/CD', 'Jenkins',
+                                'Web Development', 'Mobile App Development', 'Game Development', 'Unity', 'Unreal Engine',
+                                'Business Administration', 'Marketing', 'Digital Marketing', 'SEO', 'SEM', 'Social Media Management', 'Sales', 'Finance', 'Accounting', 'Human Resources', 'Supply Chain Management', 'Logistics',
+                                'Project Management', 'Agile/Scrum', 'Leadership', 'Communication', 'Public Speaking', 'Problem Solving', 'Teamwork', 'Critical Thinking', 'Time Management', 'Negotiation',
+                                'UI/UX Design', 'Graphic Design', 'Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'Video Editing', 'Premiere Pro', 'After Effects', 'Content Creation', 'Copywriting', 'Blogging',
+                                'Mechanical Engineering', 'Electrical Engineering', 'Civil Engineering', 'Robotics', 'IoT', 'CAD', 'AutoCAD', 'SolidWorks',
+                                'Data Analysis', 'Tableau', 'Power BI', 'Excel', 'Statistics', 'R', 'MATLAB',
+                                'Healthcare', 'Nursing', 'Pharmacy', 'Biotechnology', 'Environmental Science', 'Psychology', 'Sociology'
+                            ];
+                            sort($predefinedSkills);
+                            
+                            $userSkills = [];
+                            if(isset($profile->skills)) {
+                                $jsonDecoded = json_decode($profile->skills, true);
+                                if(json_last_error() === JSON_ERROR_NONE && is_array($jsonDecoded)) {
+                                    $userSkills = $jsonDecoded;
+                                } else {
+                                    $userSkills = array_map('trim', explode(',', $profile->skills));
+                                }
+                            }
+                            
+                            // Find custom skills (those not in the predefined list) so we can populate the text box
+                            $customSkills = array_diff($userSkills, $predefinedSkills);
+                            $customSkillsString = implode(', ', $customSkills);
+                        @endphp
+                        
+                        <div class="row g-2 mb-3" style="max-height: 300px; overflow-y: auto; border: 1px solid #ced4da; padding: 15px; border-radius: 8px; background-color: #f8f9fa;">
+                            @foreach($predefinedSkills as $skill)
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="skills[]" value="{{ $skill }}" id="skill_{{ md5($skill) }}" {{ in_array($skill, $userSkills) ? 'checked' : '' }}>
+                                        <label class="form-check-label" style="font-size: 0.9rem; cursor: pointer;" for="skill_{{ md5($skill) }}">
+                                            {{ $skill }}
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label for="custom_skills" class="form-label fw-bold small text-secondary">Other Skills/Interests (Comma Separated)</label>
+                            <input type="text" class="form-control form-control-lg @error('custom_skills') is-invalid @enderror" id="custom_skills" name="custom_skills"
+                                value="{{ old('custom_skills', $customSkillsString) }}" placeholder="e.g., Quantum Computing, Origami">
+                            <small class="text-muted">Can't find your skill? Add it here.</small>
+                            @error('custom_skills')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        @error('skills')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
-                        <small class="text-muted">This helps us match you with relevant opportunities</small>
                     </div>
 
                     <div class="d-flex gap-3">
@@ -103,4 +189,6 @@
             </div>
         </div>
     </div>
+
+
 @endsection

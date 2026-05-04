@@ -8,7 +8,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="fw-bold">My Opportunities</h2>
-                    <p class="text-muted">Manage your posted opportunities</p>
+                    <p class="text-muted">You have posted a total of <strong>{{ $opportunities->total() }}</strong> {{ Str::plural('opportunity', $opportunities->total()) }}</p>
                 </div>
                 <a href="{{ route('organization.opportunities.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Post New Opportunity
@@ -18,11 +18,18 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
+        <div class="alert alert-success border-0 shadow-sm rounded-3 alert-dismissible fade show d-flex align-items-center gap-3 py-3" role="alert">
+            <div class="flex-shrink-0 bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                <i class="fas fa-check-circle text-success fs-5"></i>
+            </div>
+            <div class="flex-grow-1">
+                <strong class="d-block">Success!</strong>
+                <span class="text-secondary">{{ session('success') }}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
 
     <div class="row">
         <div class="col-12">
@@ -34,7 +41,6 @@
                                 <tr>
                                     <th>Title</th>
                                     <th>Type</th>
-                                    <th>Status</th>
                                     <th>Deadline</th>
                                     <th>Applications</th>
                                     <th>Actions</th>
@@ -46,15 +52,6 @@
                                         <td class="fw-bold">{{ $opp->title }}</td>
                                         <td>
                                             <span class="badge bg-secondary">{{ ucfirst($opp->type) }}</span>
-                                        </td>
-                                        <td>
-                                            @if($opp->status === 'pending')
-                                                <span class="badge bg-warning">Pending Review</span>
-                                            @elseif($opp->status === 'approved')
-                                                <span class="badge bg-success">Approved</span>
-                                            @else
-                                                <span class="badge bg-danger">Rejected</span>
-                                            @endif
                                         </td>
                                         <td>{{ $opp->deadline->format('M d, Y') }}</td>
                                         <td>
@@ -83,46 +80,8 @@
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
-                                                @if($opp->status === 'rejected' && $opp->rejection_reason)
-                                                    <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
-                                                        data-bs-target="#reasonModal{{ $opp->id }}" title="View Rejection Reason">
-                                                        <i class="fas fa-exclamation-triangle"></i>
-                                                    </button>
-                                                @endif
                                             </div>
 
-                                            @if($opp->status === 'rejected' && $opp->rejection_reason)
-                                                <!-- Rejection Reason Modal -->
-                                                <div class="modal fade" id="reasonModal{{ $opp->id }}" tabindex="-1">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header bg-warning-subtle">
-                                                                <h5 class="modal-title text-warning-emphasis">
-                                                                    <i class="fas fa-exclamation-circle me-2"></i>Rejection Reason
-                                                                </h5>
-                                                                <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <h6 class="fw-bold mb-2">Message from Admin:</h6>
-                                                                <p class="text-secondary p-3 bg-light rounded border">
-                                                                    {{ $opp->rejection_reason }}
-                                                                </p>
-                                                                <small class="text-muted">
-                                                                    Rejected on:
-                                                                    {{ $opp->rejectionMessage->created_at->format('M d, Y h:i A') }}
-                                                                </small>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Close</button>
-                                                                <a href="{{ route('organization.opportunities.edit', $opp->id) }}"
-                                                                    class="btn btn-primary">Edit Opportunity</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

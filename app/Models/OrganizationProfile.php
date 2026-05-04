@@ -12,9 +12,14 @@ class OrganizationProfile extends Model
     protected $fillable = [
         'user_id',
         'organization_name',
+        'registration_id',
+        'location',
+        'google_map_link',
+        'logo',
         'description',
         'contact_person',
         'status',
+        'rejection_reason',
     ];
 
     /**
@@ -34,9 +39,9 @@ class OrganizationProfile extends Model
     }
 
     /**
-     * Check if organization is approved.
+     * Check if organization is verified (approved).
      */
-    public function isApproved()
+    public function isVerified()
     {
         return $this->status === 'approved';
     }

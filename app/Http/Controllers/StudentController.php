@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\Opportunity;
 use App\Models\StudentProfile;
+use App\Services\RecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,9 +43,17 @@ class StudentController extends Controller
      * - How many active opportunities are available
      * - How many times they've been shortlisted
      * Also shows their 5 most recent applications
+     * And AI-Recommended opportunities based on their profile
      */
-    public function dashboard()
+    public function dashboard(RecommendationService $recommendationService)
     {
+        // Profile completion check (Onboarding)
+        $profile = StudentProfile::where('user_id', Auth::id())->first();
+        if (!$profile || !$profile->age || !$profile->location) {
+            return redirect()->route('student.profile.edit')
+                ->with('warning', 'Please complete your profile to continue. This helps us match you with the right opportunities!');
+        }
+
         $stats = [
             'total_applications' => Application::where('user_id', Auth::id())->count(),
             'active_opportunities' => Opportunity::approved()->active()->count(),
@@ -58,7 +67,10 @@ class StudentController extends Controller
             ->take(5)
             ->get();
 
-        return view('student.dashboard.index', compact('stats', 'recentApplications'));
+        // Get AI Recommendations
+        $recommendations = $recommendationService->getRecommendations($profile, 4);
+
+        return view('student.dashboard.index', compact('stats', 'recentApplications', 'recommendations'));
     }
 
     /**
@@ -103,20 +115,48 @@ class StudentController extends Controller
             'field_of_study' => 'nullable|string|max:255',
             'education_level' => 'nullable|string|max:255',
             'interests' => 'nullable|string',
+            'age' => 'nullable|integer|min:13|max:100',
+            'location' => 'nullable|string|max:255',
+            'skills' => 'nullable|array',
+            'skills.*' => 'string|max:100',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Update user fields
+        // Update user fields (legacy mapping, keep them synced)
         Auth::user()->update([
-            'field_of_study' => $validated['field_of_study'],
-            'education_level' => $validated['education_level'],
-            'interests' => $validated['interests'],
+            'field_of_study' => $validated['field_of_study'] ?? null,
+            'education_level' => $validated['education_level'] ?? null,
+            'interests' => $validated['interests'] ?? null,
         ]);
 
-        // Update or create student profile if needed
         $profile = StudentProfile::where('user_id', Auth::id())->first();
+        $imagePath = $profile ? $profile->profile_image : null;
+
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->store('profile_images', 'public');
+        }
+
+        // Update or create student profile with extended fields
         if (!$profile) {
             StudentProfile::create([
                 'user_id' => Auth::id(),
+                'field_of_study' => $validated['field_of_study'] ?? null,
+                'education_level' => $validated['education_level'] ?? null,
+                'interests' => $validated['interests'] ?? null,
+                'age' => $validated['age'] ?? null,
+                'location' => $validated['location'] ?? null,
+                'skills' => isset($validated['skills']) ? json_encode($validated['skills']) : null,
+                'profile_image' => $imagePath,
+            ]);
+        } else {
+            $profile->update([
+                'field_of_study' => $validated['field_of_study'] ?? null,
+                'education_level' => $validated['education_level'] ?? null,
+                'interests' => $validated['interests'] ?? null,
+                'age' => $validated['age'] ?? null,
+                'location' => $validated['location'] ?? null,
+                'skills' => isset($validated['skills']) ? json_encode($validated['skills']) : null,
+                'profile_image' => $imagePath,
             ]);
         }
 

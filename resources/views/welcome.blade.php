@@ -4,221 +4,77 @@
 
 @section('styles')
     <style>
-        /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0, 33, 71, 0.7), rgba(0, 33, 71, 0.6)),
+            background: linear-gradient(rgba(0, 33, 71, 0.8), rgba(0, 33, 71, 0.6)),
                 url('{{ asset("images/hero_campus_background_1768811614804.png") }}');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
             min-height: 90vh;
-            color: white;
-            position: relative;
             display: flex;
             align-items: center;
-            padding-top: 60px;
+            color: white;
+            padding-top: 20px;
         }
 
         .hero-title {
-            font-size: 4rem;
-            font-weight: 700;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
             line-height: 1.1;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            color: #ffffff !important;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
         }
 
-        .hero-subtitle {
-            font-size: 1.3rem;
-            font-weight: 300;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
-
-        /* Glass Search Box */
-        .search-container {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
+        .search-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 30px;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .category-card-modern {
+            background: #fff;
+            padding: 3rem 2rem;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-        }
-
-        .search-input {
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            padding: 15px 20px;
-            border-radius: 10px;
-            font-size: 1rem;
-            height: auto;
-        }
-
-        .search-input:focus {
-            background: #fff;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-
-        /* Partner Logos */
-        .partners-section {
-            background: #fff;
-            padding: 40px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .partner-logo-container {
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-        }
-
-        .partners-img {
-            max-width: 100%;
-            height: auto;
-            transition: transform 0.3s;
-        }
-
-        .partners-img:hover {
-            opacity: 1;
-            filter: grayscale(0%);
-        }
-
-        /* Category Cards */
-        .category-card {
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 15px;
-            padding: 40px 30px;
-            text-align: center;
+            border: 1px solid rgba(0,0,0,0.03);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
+            text-align: center;
         }
 
-        .category-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 0;
-            background: var(--gradient-primary);
-            transition: all 0.4s ease;
-            z-index: -1;
+        .category-card-modern:hover {
+            background: var(--primary);
+            color: white !important;
+            transform: translateY(-12px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .category-card:hover::before {
-            height: 100%;
-        }
-
-        .category-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .category-card:hover h4,
-        .category-card:hover p,
-        .category-card:hover i {
+        .category-card-modern:hover .cat-icon, 
+        .category-card-modern:hover p, 
+        .category-card-modern:hover h4 {
             color: white !important;
         }
 
         .cat-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            transition: all 0.3s;
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            transition: 0.3s;
         }
 
-        /* Premium Opportunity Cards */
-        .premium-card {
+        .premium-card-modern {
             background: #fff;
-            border-radius: 16px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s ease;
-            overflow: hidden;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .premium-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.08);
-            border-color: var(--accent-color);
-        }
-
-        .card-header-img {
-            height: 140px;
-            background: var(--gradient-primary);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.1);
-            font-size: 4rem;
-        }
-
-        .org-logo-absolute {
-            position: absolute;
-            bottom: -25px;
-            left: 20px;
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 12px;
-            padding: 5px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-body-content {
-            padding: 35px 20px 20px;
-            flex-grow: 1;
-        }
-
-        .tag-pill {
-            font-size: 0.75rem;
-            padding: 5px 12px;
-            border-radius: 50px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .tag-internship {
-            background: #e3f2fd;
-            color: #0d47a1;
-        }
-
-        .tag-scholarship {
-            background: #fff8e1;
-            color: #ff6f00;
-        }
-
-        .tag-job {
-            background: #e8f5e9;
-            color: #1b5e20;
-        }
-
-        /* Testimonials */
-        .testimonial-card {
-            background: #fff;
-            padding: 40px;
             border-radius: 20px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            border-top: 4px solid var(--accent-color);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.4s;
+            height: 100%;
         }
 
-        .quote-icon {
-            font-size: 2rem;
-            color: var(--accent-color);
-            margin-bottom: 20px;
+        .premium-card-modern:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.1);
+            border-color: var(--accent);
         }
     </style>
 @endsection
@@ -241,34 +97,34 @@
                         Your journey to success starts with a single search.
                     </p>
                     <div class="d-flex gap-3">
-                        <a href="{{ route('register') }}" class="btn btn-accent btn-lg shadow-lg">
+                        <a href="{{ route('register') }}" class="btn btn-lg px-5 shadow-lg fw-bold rounded-pill" style="background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: #002147; border: none; transition: transform 0.3s ease;">
                             Get Started Free
                         </a>
-                        <a href="#how-it-works" class="btn btn-outline-light btn-lg">
+                        <a href="#how-it-works" class="btn btn-outline-light btn-lg rounded-pill px-4">
                             How It Works
                         </a>
                     </div>
                 </div>
 
                 <div class="col-lg-5 mt-5 mt-lg-0" data-aos="fade-left" data-aos-delay="200">
-                    <div class="search-container">
-                        <h4 class="fw-bold mb-4"><i class="fas fa-search me-2 text-warning"></i>Find Opportunities</h4>
+                    <div class="search-glass">
+                        <h4 class="fw-bold mb-4 text-white"><i class="fas fa-search me-2 text-warning"></i>Find Opportunities</h4>
                         <form action="{{ route('student.opportunities.index') }}" method="GET">
                             <div class="mb-3">
-                                <label class="small opacity-75 mb-1">What are you looking for?</label>
-                                <input type="text" name="search" class="form-control search-input"
+                                <label class="small text-white opacity-75 mb-1">What are you looking for?</label>
+                                <input type="text" name="search" class="form-control rounded-4 py-3 border-0"
                                     placeholder="e.g. Software Engineering, MBA...">
                             </div>
                             <div class="mb-4">
-                                <label class="small opacity-75 mb-1">Category</label>
-                                <select name="type" class="form-select search-input">
+                                <label class="small text-white opacity-75 mb-1">Category</label>
+                                <select name="type" class="form-select rounded-4 py-3 border-0">
                                     <option value="">All Categories</option>
                                     <option value="scholarship">Scholarships</option>
                                     <option value="internship">Internships</option>
                                     <option value="admission">University Admissions</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow">
+                            <button type="submit" class="btn-premium-accent w-100 py-3 fw-bold border-0 shadow">
                                 Search Now
                             </button>
                         </form>
@@ -292,18 +148,17 @@
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                     <a href="{{ route('student.opportunities.index', ['type' => 'scholarship']) }}"
                         class="text-decoration-none text-dark">
-                        <div class="category-card">
+                        <div class="category-card-modern">
                             <i class="fas fa-graduation-cap cat-icon"></i>
                             <h4 class="fw-bold mb-3">Scholarships</h4>
-                            <p class="text-muted mb-0">Fully funded & partial scholarships for local and international
-                                studies.</p>
+                            <p class="text-muted mb-0">Fully funded & partial scholarships for local and international studies.</p>
                         </div>
                     </a>
                 </div>
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <a href="{{ route('student.opportunities.index', ['type' => 'internship']) }}"
                         class="text-decoration-none text-dark">
-                        <div class="category-card">
+                        <div class="category-card-modern">
                             <i class="fas fa-briefcase cat-icon"></i>
                             <h4 class="fw-bold mb-3">Internships</h4>
                             <p class="text-muted mb-0">Gain practical experience with top companies and startups.</p>
@@ -313,7 +168,7 @@
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <a href="{{ route('student.opportunities.index', ['type' => 'admission']) }}"
                         class="text-decoration-none text-dark">
-                        <div class="category-card">
+                        <div class="category-card-modern">
                             <i class="fas fa-university cat-icon"></i>
                             <h4 class="fw-bold mb-3">Admissions</h4>
                             <p class="text-muted mb-0">Secure your seat in HEC recognized universities.</p>
@@ -323,6 +178,89 @@
             </div>
         </div>
     </section>
+
+    <!-- How it Works Section -->
+    <section id="how-it-works" class="py-5" style="background: #fff; padding-top: 100px !important; padding-bottom: 100px !important;">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h6 class="text-primary fw-bold text-uppercase mb-2">Simple Process</h6>
+                <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+                <div class="mx-auto bg-warning" style="width: 80px; height: 4px; border-radius: 2px;"></div>
+                <p class="text-muted mt-4 lead mx-auto" style="max-width: 700px;">Your journey to a global future is just three steps away. We've simplified the process to help you focus on your goals.</p>
+            </div>
+
+            <div class="row g-4 text-center mt-2">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="how-it-works-step p-4">
+                        <div class="step-icon-wrapper mb-4">
+                            <i class="fas fa-search"></i>
+                            <span class="step-number">1</span>
+                        </div>
+                        <h4 class="fw-bold mb-3">Discover</h4>
+                        <p class="text-muted">Browse through thousands of scholarships, internships, and university admissions tailored to your profile.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="how-it-works-step p-4">
+                        <div class="step-icon-wrapper mb-4">
+                            <i class="fas fa-file-signature"></i>
+                            <span class="step-number">2</span>
+                        </div>
+                        <h4 class="fw-bold mb-3">Apply</h4>
+                        <p class="text-muted">Use our AI-powered Resume Builder to create a professional CV and apply to opportunities with just one click.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="how-it-works-step p-4">
+                        <div class="step-icon-wrapper mb-4">
+                            <i class="fas fa-award"></i>
+                            <span class="step-number">3</span>
+                        </div>
+                        <h4 class="fw-bold mb-3">Succeed</h4>
+                        <p class="text-muted">Track your applications and get notified directly when you secure your dream opportunity. Shape your future today.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .how-it-works-step {
+            transition: transform 0.3s ease;
+        }
+        .how-it-works-step:hover {
+            transform: translateY(-5px);
+        }
+        .step-icon-wrapper {
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 33, 71, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        .step-number {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--accent-color);
+            color: var(--primary);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+    </style>
 
 
     <!-- Latest Opportunities Section -->
@@ -341,18 +279,26 @@
             <div class="row g-4">
                 @forelse($latestOpportunities as $opp)
                     <div class="col-md-6 col-lg-4" data-aos="fade-up">
-                        <div class="premium-card">
-                            <div class="card-header-img">
-                                <i
-                                    class="fas {{ $opp->type == 'scholarship' ? 'fa-graduation-cap' : ($opp->type == 'internship' ? 'fa-laptop-code' : 'fa-building') }}"></i>
-                                <div class="org-logo-absolute">
-                                    <span
-                                        class="fw-bold text-primary fs-4">{{ substr($opp->organization->organization_name, 0, 1) }}</span>
+                        <div class="premium-card-modern">
+                            <div class="card-header-img" style="height: 180px; position: relative; overflow: hidden; background: #f8f9fa;">
+                                @if($opp->image)
+                                    <img src="{{ asset('storage/' . $opp->image) }}" alt="{{ $opp->title }}" style="width: 100%; height: 100%; object-fit: contain;">
+                                @else
+                                    <div class="h-100 w-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #002147 0%, #003366 100%); color: rgba(255,255,255,0.1); font-size: 4rem;">
+                                        <i class="fas {{ $opp->type == 'scholarship' ? 'fa-graduation-cap' : ($opp->type == 'internship' ? 'fa-laptop-code' : 'fa-building') }}"></i>
+                                    </div>
+                                @endif
+                                <div class="org-logo-absolute" style="position: absolute; bottom: -25px; left: 20px; width: 60px; height: 60px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); border: 2px solid white; overflow: hidden;">
+                                    @if($opp->organization->logo)
+                                        <img src="{{ asset('storage/' . $opp->organization->logo) }}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; background: white;">
+                                    @else
+                                        <span class="fw-bold text-primary fs-4">{{ substr($opp->organization->organization_name, 0, 1) }}</span>
+                                    @endif
                                 </div>
                             </div>
-                            <div class="card-body-content">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="tag-pill tag-{{ $opp->type }}">{{ ucfirst($opp->type) }}</span>
+                            <div class="p-4 pt-5">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge rounded-pill px-3 py-2 {{ $opp->type == 'scholarship' ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success' }}">{{ ucfirst($opp->type) }}</span>
                                     <small class="text-muted"><i class="far fa-clock me-1"></i>
                                         {{ $opp->created_at->diffForHumans() }}</small>
                                 </div>
@@ -362,15 +308,14 @@
                                         {{ $opp->title }}
                                     </a>
                                 </h5>
-                                <p class="text-muted small mb-3">{{ $opp->organization->organization_name }} •
+                                <p class="text-muted small mb-4">{{ $opp->organization->organization_name }} •
                                     {{ $opp->location ?? 'Pakistan' }}
                                 </p>
-                                <hr class="opacity-10 my-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold text-primary">{{ $opp->fees ? $opp->fees : 'Free' }}</span>
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                    <span class="fw-bold text-primary fs-5">{{ $opp->fees ? $opp->fees : 'Free' }}</span>
                                     <a href="{{ route('opportunities.show', $opp->id) }}"
-                                        class="text-primary fw-bold small text-decoration-none">
-                                        Apply Now <i class="fas fa-chevron-right ms-1"></i>
+                                        class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        View Details <i class="fas fa-arrow-right ms-1"></i>
                                     </a>
                                 </div>
                             </div>

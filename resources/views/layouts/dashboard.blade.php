@@ -15,22 +15,13 @@
 
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Modern Design System -->
+    <link href="{{ asset('css/modern.css') }}" rel="stylesheet">
 
     <style>
-        :root {
-            /* Premium Academic Palette */
-            --primary-color: #002147;
-            --primary-light: #003366;
-            --accent-color: #FFD700;
-            --sidebar-bg: #fff;
-            --bg-light: #f3f6f9;
-            --active-bg: #e3f2fd;
-        }
-
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-light);
-            color: #333;
+            background-color: var(--bg-body);
         }
 
         #wrapper {
@@ -41,149 +32,128 @@
         }
 
         #sidebar-wrapper {
-            min-height: 100vh;
+            background: #ffffff;
+            border-right: 1px solid rgba(0,0,0,0.05);
             width: 280px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid #eee;
-            flex-shrink: 0;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.02);
+            z-index: 1050; /* higher than navbar-dashboard */
             transition: all 0.3s ease;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.03);
-            z-index: 1000;
+            position: fixed;
+            height: 100vh;
+            left: -280px;
+            overflow-y: auto;
+        }
+
+        #wrapper.toggled #sidebar-wrapper {
+            left: 0;
         }
 
         .sidebar-heading {
-            padding: 1.5rem;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            border-bottom: 1px solid #eee;
-            background: linear-gradient(to right, #ffffff, #f8f9fa);
-            font-family: 'Playfair Display', serif;
-        }
-
-        .list-group-item {
-            border: none;
-            padding: 1rem 1.5rem;
-            font-size: 0.95rem;
-            color: #555;
-            font-weight: 500;
-            transition: all 0.2s;
-            border-left: 4px solid transparent;
-        }
-
-        .list-group-item:hover {
-            color: var(--primary-color);
-            background-color: #f8f9fa;
-            padding-left: 1.8rem;
-        }
-
-        .list-group-item.active {
-            color: var(--primary-color);
-            background-color: var(--active-bg);
-            border-left: 4px solid var(--accent-color);
-            font-weight: 600;
+            padding: 2rem 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: -0.5px;
         }
 
         #page-content-wrapper {
             flex: 1;
+            height: 100vh;
             overflow-y: auto;
+            position: relative;
+            background: transparent;
             width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        @media (min-width: 992px) {
+            #sidebar-wrapper {
+                position: relative;
+                left: 0;
+            }
+            #wrapper.toggled #sidebar-wrapper {
+                margin-left: -280px;
+            }
         }
 
         .navbar-dashboard {
-            background: #fff;
-            border-bottom: 1px solid #eee;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-        }
-
-        .glass-card {
-            background: #fff;
-            border: 1px solid #eee;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2rem;
+            min-height: 80px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #999;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
     </style>
 </head>
 
 <body>
     <div id="wrapper">
         <!-- Sidebar -->
-        <div id="sidebar-wrapper">
+        <div id="sidebar-wrapper" class="neo-sidebar">
             <div class="sidebar-heading">
                 <i class="fas fa-graduation-cap me-2 text-warning"></i> Bright Future
             </div>
-            <div class="list-group list-group-flush mt-3">
-                <a href="{{ url('/') }}" class="list-group-item list-group-item-action">
-                    <i class="fas fa-arrow-left me-2"></i> Back to Home
-                </a>
+            <div class="mt-4">
                 @if(Auth::check() && Auth::user()->role == 'admin')
-                    <a href="{{ url('/dashboard') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <a href="{{ url('/dashboard') }}" class="sidebar-link {{ Request::is('dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
-                    <a href="{{ route('admin.users.index') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('admin/users*') ? 'active' : '' }}">
-                        <i class="fas fa-users me-2"></i> Manage Users
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ Request::is('admin/users*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i> Users
                     </a>
-                    <a href="{{ route('admin.opportunities.pending') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('admin/opportunities/pending*') ? 'active' : '' }}">
-                        <i class="fas fa-list-check me-2"></i> Approvals
+                    <a href="{{ route('admin.organizations.pending') }}" class="sidebar-link {{ Request::is('admin/organizations/pending*') ? 'active' : '' }}">
+                        <i class="fas fa-university"></i> Organization Requests
                     </a>
                 @elseif(Auth::check() && Auth::user()->role == 'organization')
-                    <a href="{{ url('/dashboard') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-chart-line me-2"></i> Overview
+                    <a href="{{ url('/dashboard') }}" class="sidebar-link {{ Request::is('dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i> Overview
                     </a>
-                    <a href="{{ route('organization.opportunities.create') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('organization/opportunities/create*') ? 'active' : '' }}">
-                        <i class="fas fa-plus-circle me-2"></i> Post Opportunity
+                    <a href="{{ route('organization.opportunities.create') }}" class="sidebar-link {{ Request::is('organization/opportunities/create*') ? 'active' : '' }}">
+                        <i class="fas fa-plus-circle"></i> New Post
                     </a>
-                    <a href="{{ route('organization.opportunities.index') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('organization/opportunities') ? 'active' : '' }}">
-                        <i class="fas fa-briefcase me-2"></i> My Listings
+                    <a href="{{ route('organization.opportunities.index') }}" class="sidebar-link {{ Request::is('organization/opportunities') ? 'active' : '' }}">
+                        <i class="fas fa-list"></i> My Listings
+                    </a>
+                    <a href="{{ route('organization.applications.all') }}" class="sidebar-link {{ Request::is('organization/applications*') ? 'active' : '' }}">
+                        <i class="fas fa-paper-plane"></i> Applications
                     </a>
                 @else
-                    <a href="{{ url('/dashboard') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-home me-2"></i> Dashboard
+                    <a href="{{ route('student.dashboard') }}" class="sidebar-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-th-large"></i> Dashboard
                     </a>
-                    <a href="{{ route('student.opportunities.index') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('student/opportunities') ? 'active' : '' }}">
-                        <i class="fas fa-search me-2"></i> Find Opportunities
+                    <a href="{{ route('student.opportunities.index') }}" class="sidebar-link {{ Request::is('student/opportunities*') ? 'active' : '' }}">
+                        <i class="fas fa-briefcase"></i> Opportunities
                     </a>
-                    <a href="{{ route('student.profile.edit') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('student/profile/edit') ? 'active' : '' }}">
-                        <i class="fas fa-user me-2"></i> My Profile
+                    <a href="{{ route('student.applications.index') }}" class="sidebar-link {{ Request::is('student/applications*') ? 'active' : '' }}">
+                        <i class="fas fa-paper-plane"></i> Applications
                     </a>
-                    <a href="{{ route('student.applications.index') }}"
-                        class="list-group-item list-group-item-action {{ Request::is('student/applications') ? 'active' : '' }}">
-                        <i class="fas fa-file-alt me-2"></i> My Applications
+                    <a href="{{ route('student.resume.index') }}" class="sidebar-link {{ Request::is('student/resume*') ? 'active' : '' }}">
+                        <i class="fas fa-file-invoice"></i> CV Builder
+                    </a>
+                    <a href="{{ route('student.career.roadmap') }}" class="sidebar-link {{ Request::is('student/career*') ? 'active' : '' }}">
+                        <i class="fas fa-magic"></i> AI Roadmap
+                    </a>
+                    <a href="{{ route('student.profile.edit') }}" class="sidebar-link {{ Request::is('student/profile/edit') ? 'active' : '' }}">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                    <a href="/" class="sidebar-link">
+                        <i class="fas fa-home"></i> Back to Home
                     </a>
                 @endif
-
+                <div class="border-top my-4 mx-4 opacity-10"></div>
 
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                    class="list-group-item list-group-item-action text-danger mt-5">
-                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    class="sidebar-link text-danger border-0 bg-transparent w-100 text-start">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf
@@ -194,11 +164,14 @@
         <!-- Page Content -->
         <div id="page-content-wrapper">
             <nav class="navbar navbar-dashboard d-flex justify-content-between align-items-center">
-                <button class="btn btn-light" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                <button class="btn bg-white border shadow-sm rounded-3 d-flex align-items-center justify-content-center" id="menu-toggle" style="width: 45px; height: 45px;">
+                    <i class="fas fa-bars text-primary fa-lg"></i>
+                </button>
                 <div class="d-flex align-items-center gap-3">
 
                     
                     @auth
+                    @if(Auth::user()->role == 'student')
                     <!-- Notifications Dropdown -->
                     <div class="dropdown me-3 dropdown-notifications">
                         <a href="#" class="text-secondary position-relative dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -229,13 +202,19 @@
                             <li><a class="dropdown-item text-center text-primary fw-bold pt-2 border-top" href="#" id="mark-all-read">Mark all as read</a></li>
                         </ul>
                     </div>
+                    @endif
                     @endauth
 
                     <span class="text-secondary fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
-                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary fw-bold"
-                        style="width: 40px; height: 40px; border: 1px solid #eee;">
-                        {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
-                    </div>
+                    @if(Auth::check() && Auth::user()->isStudent() && Auth::user()->studentProfile && Auth::user()->studentProfile->profile_image)
+                        <img src="{{ asset('storage/' . Auth::user()->studentProfile->profile_image) }}" alt="Profile" 
+                             class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #eee;">
+                    @else
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary fw-bold"
+                            style="width: 40px; height: 40px; border: 1px solid #eee;">
+                            {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                        </div>
+                    @endif
                 </div>
             </nav>
 
@@ -257,7 +236,13 @@
             el.classList.toggle("toggled");
         };
 
-
+        // Initialize Bootstrap Tooltips
+        document.addEventListener("DOMContentLoaded", function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
 
         @auth
         $(document).ready(function() {
@@ -359,8 +344,9 @@
         });
         @endauth
     </script>
-    @include('partials.chat_widget')
+    @stack('scripts')
     @yield('scripts')
+    @include('partials.chat_widget')
 </body>
 
 </html>

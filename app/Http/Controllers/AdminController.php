@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Opportunity;
 use App\Models\OrganizationProfile;
 use App\Models\Application;
-use App\Models\RejectionMessage;
 use Illuminate\Http\Request;
 
 /**
@@ -51,8 +50,8 @@ class AdminController extends Controller
             'total_users' => User::count(),
             'total_students' => User::where('role', 'student')->count(),
             'total_organizations' => User::where('role', 'organization')->count(),
-            'pending_opportunities' => Opportunity::where('status', 'pending')->count(),
-            'approved_opportunities' => Opportunity::where('status', 'approved')->count(),
+            'pending_organizations' => OrganizationProfile::where('status', 'pending')->count(),
+            'total_opportunities' => Opportunity::count(),
             'total_applications' => Application::count(),
         ];
 
@@ -68,9 +67,9 @@ class AdminController extends Controller
 
         // --- Data for Opportunity Distribution Chart ---
         $opportunityDistribution = [
-            'Job' => Opportunity::where('type', 'Job')->count(),
-            'Internship' => Opportunity::where('type', 'Internship')->count(),
-            'Scholarship' => Opportunity::where('type', 'Scholarship')->count(),
+            'Admission' => Opportunity::where('type', 'admission')->count(),
+            'Internship' => Opportunity::where('type', 'internship')->count(),
+            'Scholarship' => Opportunity::where('type', 'scholarship')->count(),
         ];
 
         $chartData = [
@@ -84,70 +83,58 @@ class AdminController extends Controller
             ],
         ];
 
-        $recentOpportunities = Opportunity::with('organization')
+        $recentOrganizations = OrganizationProfile::with('user')
+            ->where('status', 'pending')
             ->latest()
             ->take(5)
             ->get();
 
-        return view('admin.dashboard.index', compact('stats', 'recentOpportunities', 'chartData'));
+        return view('admin.dashboard.index', compact('stats', 'recentOrganizations', 'chartData'));
     }
 
     /**
-     * Show all opportunities waiting for admin approval
-     * 
-     * When organizations create new opportunities, they need admin approval
-     * before students can see them. This page shows all pending ones.
+     * Show all organizations waiting for admin verification
      */
-    public function pendingOpportunities()
+    public function pendingOrganizations()
     {
-        $opportunities = Opportunity::with('organization')
+        $organizations = OrganizationProfile::with('user')
             ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return view('admin.opportunities.pending', compact('opportunities'));
+        return view('admin.organizations.pending', compact('organizations'));
     }
 
     /**
-     * Approve an opportunity so students can see it
-     * 
-     * Changes the opportunity status from 'pending' to 'approved',
-     * making it visible to students on the platform.
+     * Approve an organization after verification
      */
-    public function approveOpportunity($id)
+    public function approveOrganization($id)
     {
-        $opportunity = Opportunity::findOrFail($id);
-        $opportunity->update(['status' => 'approved']);
-
-        // Dispatch notification to all students
-        $students = User::where('role', 'student')->get();
-        foreach ($students as $student) {
-            $student->notify(new \App\Notifications\NewOpportunityNotification($opportunity));
-        }
-
-        return back()->with('success', 'Opportunity approved successfully!');
-    }
-
-    /**
-     * Reject an opportunity with a reason
-     * 
-     * If an opportunity doesn't meet guidelines, admin can reject it.
-     * The rejection reason is saved so the organization knows why
-     * it was rejected and can fix the issues.
-     */
-    public function rejectOpportunity(Request $request, $id)
-    {
-        $request->validate([
-            'reason' => 'required|string|max:500',
+        $organization = OrganizationProfile::findOrFail($id);
+        $organization->update([
+            'status' => 'approved',
+            'rejection_reason' => null
         ]);
 
-        $opportunity = Opportunity::findOrFail($id);
-        $opportunity->update([
+        return back()->with('success', 'Organization verified successfully! They can now post opportunities directly.');
+    }
+
+    /**
+     * Reject an organization with a reason
+     */
+    public function rejectOrganization(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $organization = OrganizationProfile::findOrFail($id);
+        $organization->update([
             'status' => 'rejected',
             'rejection_reason' => $request->reason
         ]);
 
-        return back()->with('success', 'Opportunity rejected.');
+        return back()->with('success', 'Organization registration rejected.');
     }
 
     /**

@@ -83,6 +83,13 @@ class OpportunityController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Debug logging
+        \Illuminate\Support\Facades\Log::info('Opportunity Store Request:', [
+            'has_file' => $request->hasFile('image'),
+            'file_name' => $request->file('image') ? $request->file('image')->getClientOriginalName() : 'none',
+            'user_id' => Auth::id()
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -92,7 +99,13 @@ class OpportunityController extends Controller
             'location' => 'nullable|string|max:255',
             'fees' => 'nullable|string|max:255',
             'application_link' => 'nullable|url|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Increased to 5MB
         ]);
+
+        // Handle Image Upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('opportunities', 'public');
+        }
 
         // Get organization profile
         $organization = OrganizationProfile::where('user_id', Auth::id())->first();
@@ -101,13 +114,22 @@ class OpportunityController extends Controller
             return back()->withErrors(['error' => 'Organization profile not found. Please complete your profile first.']);
         }
 
-        $validated['organization_id'] = $organization->id;
-        $validated['status'] = 'pending'; // Requires admin approval
+        if ($organization->status !== 'approved') {
+            return back()->with('error', 'Your account is not yet verified by the admin. You will be able to post once verified.');
+        }
 
-        Opportunity::create($validated);
+        $validated['organization_id'] = $organization->id;
+        $validated['status'] = 'approved';
+        $message = 'Opportunity posted successfully!';
+
+        $opportunity = Opportunity::create($validated);
+
+        if ($opportunity->status === 'approved') {
+            \App\Services\OpportunityMatcher::matchAndNotify($opportunity);
+        }
 
         return redirect()->route('organization.opportunities.index')
-            ->with('success', 'Opportunity submitted successfully! Awaiting admin approval.');
+            ->with('success', $message);
     }
 
     /**
@@ -122,15 +144,18 @@ class OpportunityController extends Controller
             abort(404, 'Organization information not found for this opportunity.');
         }
 
-        // Check if user has applied (if logged in as student)
+        // Check if user has applied and fetch resumes (if logged in as student)
         $hasApplied = false;
+        $resumes = collect();
         if (Auth::check() && Auth::user()->role === 'student') {
-            $hasApplied = Application::where('user_id', Auth::id())
+            $hasApplied = \App\Models\Application::where('user_id', Auth::id())
                 ->where('opportunity_id', $id)
                 ->exists();
+            
+            $resumes = \App\Models\Resume::where('user_id', Auth::id())->latest()->get();
         }
 
-        return view('opportunities.show', compact('opportunity', 'hasApplied'));
+        return view('opportunities.show', compact('opportunity', 'hasApplied', 'resumes'));
     }
 
     /**
@@ -162,6 +187,14 @@ class OpportunityController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Debug logging
+        \Illuminate\Support\Facades\Log::info('Opportunity Update Request:', [
+            'id' => $id,
+            'has_file' => $request->hasFile('image'),
+            'file_name' => $request->file('image') ? $request->file('image')->getClientOriginalName() : 'none',
+            'user_id' => Auth::id()
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -171,15 +204,29 @@ class OpportunityController extends Controller
             'location' => 'nullable|string|max:255',
             'fees' => 'nullable|string|max:255',
             'application_link' => 'nullable|url|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Increased to 5MB
         ]);
 
-        // Reset to pending if edited
-        $validated['status'] = 'pending';
+        // Handle Image Upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($opportunity->image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($opportunity->image);
+            }
+            $validated['image'] = $request->file('image')->store('opportunities', 'public');
+        }
+
+        $validated['status'] = 'approved';
+        $message = 'Opportunity updated successfully!';
 
         $opportunity->update($validated);
 
+        if ($opportunity->status === 'approved') {
+            \App\Services\OpportunityMatcher::matchAndNotify($opportunity, true);
+        }
+
         return redirect()->route('organization.opportunities.index')
-            ->with('success', 'Opportunity updated successfully! Awaiting admin re-approval.');
+            ->with('success', $message);
     }
 
     /**

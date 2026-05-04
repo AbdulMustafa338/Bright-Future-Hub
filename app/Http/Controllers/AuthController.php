@@ -104,13 +104,28 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         // Validate all the registration information
-        $validated = $request->validate([
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', 'min:8'],
             'role' => ['required', 'in:student,organization'],
-            'org_name' => ['required_if:role,organization', 'nullable', 'string', 'max:255'],
-        ]);
+        ];
+
+        if ($request->role === 'organization') {
+            $rules['org_name'] = ['required', 'string', 'max:255'];
+            $rules['registration_id'] = ['required', 'string', 'max:100'];
+            $rules['location'] = ['required', 'string', 'max:255'];
+            $rules['google_map_link'] = ['nullable', 'url'];
+            $rules['logo'] = ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'];
+        }
+
+        $validated = $request->validate($rules);
+
+        // Handle logo upload if role is organization
+        $logoPath = null;
+        if ($request->role === 'organization' && $request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('logos', 'public');
+        }
 
         // Create the user account with encrypted password
         $user = User::create([
@@ -125,7 +140,11 @@ class AuthController extends Controller
         if ($request->role === 'organization') {
             OrganizationProfile::create([
                 'user_id' => $user->id,
-                'organization_name' => $request->org_name ?? $request->name,
+                'organization_name' => $request->org_name,
+                'registration_id' => $request->registration_id,
+                'location' => $request->location,
+                'google_map_link' => $request->google_map_link,
+                'logo' => $logoPath,
                 'status' => 'pending', // Needs admin approval
             ]);
         }

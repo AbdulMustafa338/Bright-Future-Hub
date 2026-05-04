@@ -6,6 +6,7 @@ use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\ResumeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,7 +14,6 @@ use App\Http\Controllers\StudentController;
 |--------------------------------------------------------------------------
 */
 
-// Public Routes
 // Public Routes
 Route::get('/', function () {
     // Fetch latest 6 active opportunities
@@ -33,41 +33,33 @@ Route::get('/', function () {
     ];
 
     // --- AUTO-SYNC LOGIC START ---
-    // Source: Where you are working (database/public)
     $sourceDir = base_path('database/public/images/partners');
-    // Destination: Where the website looks (public)
     $destDir = public_path('images/partners');
 
     if (file_exists($sourceDir)) {
-        // Ensure destination folder exists
         if (!file_exists($destDir)) {
             mkdir($destDir, 0755, true);
         }
 
-        // 1. Copy new/updated files from Source to Destination
         $sourceFiles = array_diff(scandir($sourceDir), ['.', '..']);
         foreach ($sourceFiles as $file) {
             $srcPath = $sourceDir . '/' . $file;
             $destPath = $destDir . '/' . $file;
 
-            // Copy if missing or modified
             if (!file_exists($destPath) || filemtime($srcPath) > filemtime($destPath)) {
                 @copy($srcPath, $destPath);
             }
         }
 
-        // 2. Delete files in Destination that are NOT in Source
-        // (This fixes the "deleted image still showing" issue)
         $destFiles = array_diff(scandir($destDir), ['.', '..']);
         foreach ($destFiles as $file) {
             if (!in_array($file, $sourceFiles)) {
-                @unlink($destDir . '/' . $file); // Delete the extra file
+                @unlink($destDir . '/' . $file);
             }
         }
     }
     // --- AUTO-SYNC LOGIC END ---
 
-    // Fetch Partners from the (now synced) public folder
     $directory = $destDir;
     $partners = collect();
 
@@ -81,7 +73,7 @@ Route::get('/', function () {
         }
     }
 
-    return view('welcome', compact('latestOpportunities', 'stats', 'partners')); // dump($partners); to debug
+    return view('welcome', compact('latestOpportunities', 'stats', 'partners'));
 })->name('home');
 
 // Authentication Routes
@@ -114,6 +106,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Chat Routes
     Route::post('/chat/message', [\App\Http\Controllers\ChatController::class, 'handleMessage'])->name('chat.message');
+    Route::post('/chat/clear', [\App\Http\Controllers\ChatController::class, 'clearHistory'])->name('chat.clear');
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -122,9 +115,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/users/{id}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('users.toggle');
 
         Route::get('/opportunities', [AdminController::class, 'allOpportunities'])->name('opportunities.index');
-        Route::get('/opportunities/pending', [AdminController::class, 'pendingOpportunities'])->name('opportunities.pending');
-        Route::post('/opportunities/{id}/approve', [AdminController::class, 'approveOpportunity'])->name('opportunities.approve');
-        Route::post('/opportunities/{id}/reject', [AdminController::class, 'rejectOpportunity'])->name('opportunities.reject');
+        Route::get('/organizations/pending', [AdminController::class, 'pendingOrganizations'])->name('organizations.pending');
+        Route::post('/organizations/{id}/approve', [AdminController::class, 'approveOrganization'])->name('organizations.approve');
+        Route::post('/organizations/{id}/reject', [AdminController::class, 'rejectOrganization'])->name('organizations.reject');
 
         Route::get('/organizations/{id}', [AdminController::class, 'viewOrganization'])->name('organizations.show');
     });
@@ -139,6 +132,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/opportunities/{id}', [OpportunityController::class, 'update'])->name('opportunities.update');
         Route::delete('/opportunities/{id}', [OpportunityController::class, 'destroy'])->name('opportunities.destroy');
         Route::get('/opportunities/{id}/applications', [OrganizationController::class, 'viewApplications'])->name('applications.index');
+        Route::get('/applications', [OrganizationController::class, 'allApplications'])->name('applications.all');
         Route::patch('/applications/{id}/status', [OrganizationController::class, 'updateApplicationStatus'])->name('applications.update-status');
 
         Route::get('/profile/create', [OrganizationController::class, 'createProfile'])->name('profile.create');
@@ -156,5 +150,20 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/profile/edit', [StudentController::class, 'editProfile'])->name('profile.edit');
         Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
+
+        // Resume Builder & ATS Scorer (Interactive Version)
+        Route::get('/resume', [ResumeController::class, 'index'])->name('resume.index');
+        Route::get('/resume/create/{layout}', [ResumeController::class, 'create'])->name('resume.create');
+        Route::get('/resume/edit/{id}', [ResumeController::class, 'edit'])->name('resume.edit');
+        Route::post('/resume/update/{id}', [ResumeController::class, 'update'])->name('resume.update');
+        Route::get('/resume/preview/{id}', [ResumeController::class, 'preview'])->name('resume.preview');
+        Route::get('/resume/download/{id}', [ResumeController::class, 'download'])->name('resume.download');
+        Route::get('/resume/check-match/{opportunityId}/{resumeId?}', [ResumeController::class, 'checkMatch'])->name('resume.check-match');
     });
+});
+
+// AI Career Roadmap Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/student/career-roadmap', [App\Http\Controllers\CareerController::class, 'roadmap'])->name('student.career.roadmap');
+    Route::post('/student/career-roadmap/generate', [App\Http\Controllers\CareerController::class, 'generateRoadmap'])->name('student.career.generate');
 });

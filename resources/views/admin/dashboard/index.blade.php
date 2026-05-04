@@ -5,8 +5,17 @@
 @section('content')
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="fw-bold">Admin Dashboard</h2>
-            <p class="text-muted">Manage users, organizations, and opportunities</p>
+            <div class="d-flex align-items-center justify-content-between bg-white p-4 rounded-4 shadow-sm border-start border-primary border-5">
+                <div>
+                    <h2 class="fw-bold mb-0">System Overview</h2>
+                    <p class="text-muted mb-0">Real-time platform analytics & management</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">
+                        <i class="fas fa-calendar-alt me-2"></i>{{ now()->format('M d, Y') }}
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -15,13 +24,13 @@
     <!-- Stats Cards -->
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="glass-card p-4">
+            <div class="glass-card p-4 border-bottom border-primary border-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted mb-1 small">Total Users</p>
+                        <p class="text-muted mb-1 small fw-bold text-uppercase">Total Users</p>
                         <h3 class="fw-bold mb-0">{{ $stats['total_users'] }}</h3>
                     </div>
-                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                    <div class="rounded-4 bg-primary bg-opacity-10 p-3 shadow-sm">
                         <i class="fas fa-users text-primary fs-4"></i>
                     </div>
                 </div>
@@ -29,28 +38,14 @@
         </div>
 
         <div class="col-md-4">
-            <div class="glass-card p-4">
+            <div class="glass-card p-4 border-bottom border-warning border-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted mb-1 small">Pending Approvals</p>
-                        <h3 class="fw-bold mb-0 text-warning">{{ $stats['pending_opportunities'] }}</h3>
+                        <p class="text-muted mb-1 small fw-bold text-uppercase">Organization Requests</p>
+                        <h3 class="fw-bold mb-0 text-warning">{{ $stats['pending_organizations'] }}</h3>
                     </div>
-                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                        <i class="fas fa-clock text-warning fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1 small">Approved Opportunities</p>
-                        <h3 class="fw-bold mb-0 text-success">{{ $stats['approved_opportunities'] }}</h3>
-                    </div>
-                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                        <i class="fas fa-check-circle text-success fs-4"></i>
+                    <div class="rounded-4 bg-warning bg-opacity-10 p-3 shadow-sm">
+                        <i class="fas fa-university text-warning fs-4"></i>
                     </div>
                 </div>
             </div>
@@ -62,7 +57,7 @@
         <div class="col-lg-8">
             <div class="glass-card p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">User Growth (Last 30 Days)</h5>
+                    <h5 class="fw-bold mb-0">Platform Growth (Users)</h5>
                     <i class="fas fa-chart-line text-primary border rounded p-2"></i>
                 </div>
                 <div style="height: 300px;">
@@ -74,7 +69,7 @@
         <div class="col-lg-4">
             <div class="glass-card p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Opportunity Types</h5>
+                    <h5 class="fw-bold mb-0">Opportunity Breakdown</h5>
                     <i class="fas fa-chart-pie text-success border rounded p-2"></i>
                 </div>
                 <div style="height: 300px; position: relative;">
@@ -84,51 +79,49 @@
         </div>
     </div>
 
-    <!-- Recent Opportunities -->
+    <!-- Recent Organization Requests -->
     <div class="row">
         <div class="col-12">
             <div class="glass-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Recent Opportunities</h5>
-                    <a href="{{ route('admin.opportunities.pending') }}" class="btn btn-sm btn-outline-primary">
-                        View All Pending
+                    <h5 class="fw-bold mb-0">Recent Organization Requests</h5>
+                    <a href="{{ route('admin.organizations.pending') }}" class="btn btn-sm btn-outline-primary">
+                        View All Requests
                     </a>
                 </div>
 
-                @if($recentOpportunities->count() > 0)
+                @if($recentOrganizations->count() > 0)
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Organization</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Deadline</th>
+                                    <th>Logo</th>
+                                    <th>Organization Name</th>
+                                    <th>Registration ID</th>
+                                    <th>Location</th>
+                                    <th>Date Joined</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($recentOpportunities as $opp)
+                                @foreach($recentOrganizations as $org)
                                     <tr>
-                                        <td class="fw-bold">{{ $opp->title }}</td>
-                                        <td>{{ $opp->organization->organization_name }}</td>
                                         <td>
-                                            <span class="badge bg-secondary">{{ ucfirst($opp->type) }}</span>
-                                        </td>
-                                        <td>
-                                            @if($opp->status === 'pending')
-                                                <span class="badge bg-warning">Pending</span>
-                                            @elseif($opp->status === 'approved')
-                                                <span class="badge bg-success">Approved</span>
+                                            @if($org->logo)
+                                                <img src="{{ asset('storage/' . $org->logo) }}" alt="Logo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: contain; background: white;">
                                             @else
-                                                <span class="badge bg-danger">Rejected</span>
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-university text-muted"></i>
+                                                </div>
                                             @endif
                                         </td>
-                                        <td>{{ $opp->deadline->format('M d, Y') }}</td>
+                                        <td class="fw-bold">{{ $org->organization_name }}</td>
+                                        <td><code>{{ $org->registration_id }}</code></td>
+                                        <td>{{ $org->location }}</td>
+                                        <td>{{ $org->created_at->format('M d, Y') }}</td>
                                         <td>
-                                            <a href="{{ route('opportunities.show', $opp->id) }}"
-                                                class="btn btn-sm btn-outline-primary">View</a>
+                                            <a href="{{ route('admin.organizations.show', $org->id) }}"
+                                                class="btn btn-sm btn-primary">Review</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -136,11 +129,12 @@
                         </table>
                     </div>
                 @else
-                    <p class="text-muted text-center py-4">No opportunities yet</p>
+                    <p class="text-muted text-center py-4">No pending registration requests</p>
                 @endif
             </div>
         </div>
     </div>
+
 @endsection
 
 @section('scripts')
@@ -193,9 +187,9 @@
                     datasets: [{
                         data: {!! json_encode($chartData['opportunityDistribution']['data']) !!},
                         backgroundColor: [
-                            '#0d6efd', // Job
-                            '#198754', // Internship
-                            '#ffc107'  // Scholarship
+                            '#6c5ce7', // Admission
+                            '#00b894', // Internship
+                            '#fdcb6e'  // Scholarship
                         ],
                         borderWidth: 0,
                         hoverOffset: 15

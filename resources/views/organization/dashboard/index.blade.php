@@ -3,10 +3,19 @@
 @section('title', 'Organization Dashboard')
 
 @section('content')
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold">Organization Dashboard</h2>
-            <p class="text-muted">{{ $organization->organization_name }}</p>
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-auto">
+            @if($organization->logo)
+                <img src="{{ asset('storage/' . $organization->logo) }}" alt="Logo" class="rounded-circle border shadow-sm" style="width: 80px; height: 80px; object-fit: contain; background: white;">
+            @else
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border" style="width: 80px; height: 80px;">
+                    <i class="fas fa-university text-muted fs-2"></i>
+                </div>
+            @endif
+        </div>
+        <div class="col">
+            <h2 class="fw-bold mb-0">Organization Dashboard</h2>
+            <p class="text-muted mb-0">{{ $organization->organization_name }}</p>
         </div>
     </div>
 
@@ -17,9 +26,39 @@
         </div>
     @endif
 
+    <!-- Verification Status Banner -->
+    @if($organization->status === 'pending')
+        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center p-4 mb-4">
+            <i class="fas fa-clock fa-2x me-4 text-warning"></i>
+            <div>
+                <h5 class="fw-bold mb-1">Account Verification Pending</h5>
+                <p class="mb-0">Your organization is currently being reviewed by the admin. You will be able to post opportunities once verified.</p>
+            </div>
+        </div>
+    @elseif($organization->status === 'approved')
+        <div class="alert alert-success border-0 shadow-sm d-flex align-items-center p-4 mb-4">
+            <i class="fas fa-check-circle fa-2x me-4 text-success"></i>
+            <div>
+                <h5 class="fw-bold mb-1">Account Verified</h5>
+                <p class="mb-0">Your organization is verified! Your posts will now be published instantly.</p>
+            </div>
+        </div>
+    @elseif($organization->status === 'rejected')
+        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center p-4 mb-4">
+            <i class="fas fa-times-circle fa-2x me-4 text-danger"></i>
+            <div>
+                <h5 class="fw-bold mb-1">Application Rejected</h5>
+                <p class="mb-1">Unfortunately, your verification request was not approved.</p>
+                <div class="mt-2 p-2 bg-white bg-opacity-50 rounded">
+                    <strong>Reason:</strong> {{ $organization->rejection_reason ?? 'No specific reason provided.' }}
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Stats Cards -->
     <div class="row g-4 mb-5">
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="glass-card p-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -33,46 +72,20 @@
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1 small">Approved</p>
-                        <h3 class="fw-bold mb-0 text-success">{{ $stats['approved_opportunities'] }}</h3>
-                    </div>
-                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                        <i class="fas fa-check text-success fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1 small">Pending</p>
-                        <h3 class="fw-bold mb-0 text-warning">{{ $stats['pending_opportunities'] }}</h3>
-                    </div>
-                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                        <i class="fas fa-clock text-warning fs-4"></i>
+        <div class="col-md-6">
+            <a href="{{ route('organization.applications.all') }}" class="text-decoration-none">
+                <div class="glass-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Total Applications</p>
+                            <h3 class="fw-bold mb-0">{{ $stats['total_applications'] }}</h3>
+                        </div>
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                            <i class="fas fa-users text-info fs-4"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1 small">Applications</p>
-                        <h3 class="fw-bold mb-0">{{ $stats['total_applications'] }}</h3>
-                    </div>
-                    <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                        <i class="fas fa-users text-info fs-4"></i>
-                    </div>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -82,9 +95,15 @@
             <div class="glass-card p-4">
                 <h5 class="fw-bold mb-3">Quick Actions</h5>
                 <div class="d-flex gap-3">
-                    <a href="{{ route('organization.opportunities.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Post New Opportunity
-                    </a>
+                    @if($organization->status === 'approved')
+                        <a href="{{ route('organization.opportunities.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Post New Opportunity
+                        </a>
+                    @else
+                        <button class="btn btn-primary" disabled data-bs-toggle="tooltip" title="Account verification required">
+                            <i class="fas fa-plus me-2"></i>Post New Opportunity
+                        </button>
+                    @endif
                     <a href="{{ route('organization.opportunities.index') }}" class="btn btn-outline-primary">
                         <i class="fas fa-list me-2"></i>View All Opportunities
                     </a>
@@ -134,10 +153,14 @@
                                         <td>{{ $opp->deadline->format('M d, Y') }}</td>
                                         <td>{{ $opp->applications->count() }}</td>
                                         <td>
-                                            <a href="{{ route('opportunities.show', $opp->id) }}"
-                                                class="btn btn-sm btn-outline-primary">View</a>
-                                            <a href="{{ route('organization.opportunities.edit', $opp->id) }}"
-                                                class="btn btn-sm btn-outline-secondary">Edit</a>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ route('opportunities.show', $opp->id) }}"
+                                                    class="btn btn-outline-primary" title="View Public Post"><i class="fas fa-eye"></i></a>
+                                                <a href="{{ route('organization.applications.index', $opp->id) }}"
+                                                    class="btn btn-outline-info" title="View Applications"><i class="fas fa-users"></i></a>
+                                                <a href="{{ route('organization.opportunities.edit', $opp->id) }}"
+                                                    class="btn btn-outline-secondary" title="Edit Post"><i class="fas fa-edit"></i></a>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

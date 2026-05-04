@@ -17,3 +17,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/.gemini
+/scratch
+/storage/app/public/*
+!/storage/app/public/.gitignore

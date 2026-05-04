@@ -55,10 +55,6 @@ class OrganizationController extends Controller
 
         $stats = [
             'total_opportunities' => Opportunity::where('organization_id', $organization->id)->count(),
-            'approved_opportunities' => Opportunity::where('organization_id', $organization->id)
-                ->where('status', 'approved')->count(),
-            'pending_opportunities' => Opportunity::where('organization_id', $organization->id)
-                ->where('status', 'pending')->count(),
             'total_applications' => Application::whereHas('opportunity', function ($q) use ($organization) {
                 $q->where('organization_id', $organization->id);
             })->count(),
@@ -111,12 +107,40 @@ class OrganizationController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $applications = Application::with('user')
+        $applications = Application::with(['user.studentProfile', 'user.resumes'])
             ->where('opportunity_id', $opportunityId)
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
         return view('organization.applications.index', compact('opportunity', 'applications'));
+    }
+
+    /**
+     * View all applications received by the organization across all opportunities
+     * 
+     * This provides a consolidated view of every student who has applied
+     * to any of the organization's postings.
+     */
+    public function allApplications()
+    {
+        $organization = OrganizationProfile::where('user_id', Auth::id())->first();
+
+        if (!$organization) {
+            return redirect()->route('organization.profile.create');
+        }
+
+        $applications = Application::with(['user.studentProfile', 'opportunity', 'user.resumes'])
+            ->whereHas('opportunity', function ($q) use ($organization) {
+                $q->where('organization_id', $organization->id);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('organization.applications.index', [
+            'applications' => $applications,
+            'isAllView' => true,
+            'opportunity' => null
+        ]);
     }
 
     /**
@@ -149,9 +173,17 @@ class OrganizationController extends Controller
     {
         $validated = $request->validate([
             'organization_name' => 'required|string|max:255',
+            'registration_id' => 'required|string|max:100',
+            'location' => 'required|string|max:255',
+            'google_map_link' => 'nullable|url',
             'description' => 'nullable|string',
             'contact_person' => 'nullable|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+        }
 
         $validated['user_id'] = Auth::id();
         $validated['status'] = 'pending';
@@ -184,11 +216,23 @@ class OrganizationController extends Controller
     {
         $validated = $request->validate([
             'organization_name' => 'required|string|max:255',
+            'registration_id' => 'required|string|max:100',
+            'location' => 'required|string|max:255',
+            'google_map_link' => 'nullable|url',
             'description' => 'nullable|string',
             'contact_person' => 'nullable|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $organization = OrganizationProfile::where('user_id', Auth::id())->first();
+
+        if ($request->hasFile('logo')) {
+            // Delete old logo if it exists
+            if ($organization && $organization->logo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($organization->logo);
+            }
+            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+        }
 
         if ($organization) {
             $organization->update($validated);

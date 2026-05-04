@@ -23,9 +23,31 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('organization.opportunities.update', $opportunity->id) }}">
+                <form method="POST" action="{{ route('organization.opportunities.update', $opportunity->id) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+
+                    <div class="mb-4 text-center">
+                        <div class="position-relative d-inline-block w-100" style="max-width: 500px;">
+                            <label for="image" class="form-label fw-bold d-block mb-3">Opportunity Cover Image</label>
+                            <div id="image-preview" class="rounded-4 border-2 border-dashed d-flex align-items-center justify-content-center bg-light transition-all shadow-sm" 
+                                 style="width: 100%; aspect-ratio: 16/9; cursor: pointer; overflow: hidden; margin: 0 auto; border: 2px dashed #cbd5e0 !important;">
+                                @if($opportunity->image)
+                                    <img src="{{ asset('storage/' . $opportunity->image) }}" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none; background: #f8f9fa;">
+                                @else
+                                    <div class="text-center p-4" style="pointer-events: none;">
+                                        <div class="bg-white rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-cloud-upload-alt text-primary fs-3"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Click to upload banner</h6>
+                                        <p class="text-muted small mb-0">PNG, JPG or WEBP (Max 5MB)</p>
+                                    </div>
+                                @endif
+                            </div>
+                            <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(this)"
+                                   style="opacity: 0; position: absolute; top: 0; left: 0; width: 1px; height: 1px;">
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label for="title" class="form-label fw-bold">Opportunity Title *</label>
@@ -86,12 +108,6 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-warning mt-4">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Editing this opportunity will reset its status to "Pending" and require admin
-                        re-approval.
-                    </div>
-
                     <div class="d-flex gap-3 mt-4">
                         <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-save me-2"></i>Update Opportunity
@@ -131,4 +147,22 @@
             </div>
         </div>
     </div>
+@push('scripts')
+<script>
+    document.getElementById('image-preview').addEventListener('click', function() {
+        document.getElementById('image').click();
+    });
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('image-preview');
+                preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: contain; background: #f8f9fa;">`;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+@endpush
 @endsection
